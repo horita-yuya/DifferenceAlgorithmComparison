@@ -95,12 +95,13 @@ Step-3では、`oldCounter == newCounter == .one` の場合のみ計算を行い
 newElementEntries.enumerated().forEach { newIndex, element in
  guard case let .symbolTableEntry(entry) = element,
   entry.oldCounter == .one, entry.newCounter == .one else { return }
+
  let oldIndex = entry.indicesInOld.removeFirst()
  newElementEntries[newIndex] = .indexForTheOther(oldIndex)
  oldElementEntries[oldIndex] = .indexForTheOther(newIndex)
 }
 ```
-本来、共通する２つの要素を見つけるためにはnewをループしてその中でoldをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは共通のsymbolTable(キーはその要素)を持ち、そのentryとしてindicesInOldを持つことで片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)
+`本来、共通する２つの要素を見つけるためにはnewをループしてその中でoldをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは共通のsymbolTable(キーはその要素)を持ち、そのentryとしてindicesInOldを持つことで片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)`
 
 Step-4に移りましょう。Step-3はユニークな要素に対してのみ、互いのインデックスを交換(.indexForTheOther)しました。しかし、ユニークでなくても、言い換えると複数の同じ要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
 ```swift
@@ -124,9 +125,9 @@ Step-4ではascending orderで問題ありませんが、Step-5ではdescending 
 ```swift
 newElementEntries.enumerated().reversed().forEach { newIndex, element in
  guard newIndex > 0,
- case let .indexForTheOther(oldIndex) = item, oldIndex > 0,
- case let .symbolTableEntry(newEntry) = newElementEntries[newIndex - 1],
- case let .symbolTableEntry(oldEntry) = oldElementEntries[oldIndex - 1],
+  case let .indexForTheOther(oldIndex) = item, oldIndex > 0,
+  case let .symbolTableEntry(newEntry) = newElementEntries[newIndex - 1],
+  case let .symbolTableEntry(oldEntry) = oldElementEntries[oldIndex - 1],
  newEntry === oldEntry else { return }
 
  newElementEntries[newIndex - 1] = .indexForTheOther(oldIndex - 1)
@@ -134,9 +135,9 @@ newElementEntries.enumerated().reversed().forEach { newIndex, element in
 }
 ```
 さて、6つのStepの内、5つが完了しました。ここまでで、各配列で共通の要素・共通で無い要素が分かっています。先ほど少しだけ触れましたが、
-共通で無い要素で配列Oに含まれているものは、配列Nに編集する(差分とはO -> Nの編集でした。)ためには削除しなければなりません。よって `delete`。
-共通で無い要素で配列Nに含まれているものは、配列Oに加えなければなりません。よって `insert`。
-共通要素の場合は、順番を変える編集が必要です。よって `move`。
+- 共通で無い要素で配列Oに含まれているものは、配列Nに編集する(差分とはO -> Nの編集でした。)ためには削除しなければなりません。よって `delete`。
+- 共通で無い要素で配列Nに含まれているものは、配列Oに加えなければなりません。よって `insert`。
+- 共通要素の場合は、順番を変える編集が必要です。よって `move`。
 Step-6では、これらの計算を行います。
 
 ```swift
