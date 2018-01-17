@@ -38,7 +38,7 @@ class SymbolTableEntry {
 
 それでは、`2, 3: OA, NA` は何者か。`symbolTable` がSymbolTableEntryを管理していた様に、この2つもEntryを管理する配列です。それでは、何へのEntryか？
 `symbol table entry` と `その要素の互いのインデックス` の2つの内どちらかです。後者の `その要素の互いのインデックス` はOAであれば配列Nの、NAであれば配列Oのその要素が現れるインデックスという意味です。共通の要素のインデックスをOとNで交換して管理する様なイメージです。
-```
+```swift
 enum ElementEntry {
  case symbolTableEntry(SymbolTableEntry)
  case indexForTheOther(Int)
@@ -66,7 +66,7 @@ enum ElementEntry {
 4. NA[i]をsymbol tableにN[i]をキーとしてセットする。
 ```
 Step-1は比較前の準備と言ったところです。
-```
+```swift
 newArray.forEach {
  let entry = symbolTable[$0.hashValue] ?? SymbolTableEntry()
  entry.newCounter.increment()
@@ -75,7 +75,7 @@ newArray.forEach {
 }
 ```
 Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし、Oldの場合、SymbolTableEntry.indicesInOldの管理も必要ですね。
-```
+```swift
 oldArray.enumerated().forEach { index, element
  let entry = symbolTable[element.hashValue] ?? TableEntry()
  entry.oldCounter.increment()
@@ -91,7 +91,7 @@ oldArray.enumerated().forEach { index, element
 
 Step-3では、`oldCounter == newCounter == .one` の場合のみ計算を行います。Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zeroは初期値だとして、.manyは無視するということは、配列内に一つしか無い要素、すなわちユニークな要素をうまく使って計算するということです。それでは、ユニークな要素に対して、`.symbolTableEntry` を `.indexForTheOther` に変えて行きましょう。
 
-```
+```swift
 newElementEntries.enumerated().forEach { newIndex, element in
  guard case let .symbolTableEntry(entry) = element,
   entry.oldCounter == .one, entry.newCounter == .one else { return }
@@ -103,7 +103,7 @@ newElementEntries.enumerated().forEach { newIndex, element in
 本来、共通する２つの要素を見つけるためにはnewをループしてその中でoldをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは共通のsymbolTable(キーはその要素)を持ち、そのentryとしてindicesInOldを持つことで片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)
 
 Step-4に移りましょう。Step-3はユニークな要素に対してのみ、互いのインデックスを交換(.indexForTheOther)しました。しかし、ユニークでなくても、言い換えると複数の同じ要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
-```
+```swift
 newElementEntries.enumerated().forEach { newIndex, element in
  guard newIndex < newElementEntries.count - 1,
   case let .indexForTheOther(oldIndex) = element, oldIndex < oldElementEntries.count - 1,
@@ -121,7 +121,7 @@ newElementEntries.enumerated().forEach { newIndex, element in
 
 Step-5です。Step-4ではユニークな要素を起点にして、その次の要素を対象にしていました。しかし、ユニークな要素は疎らに存在していることも十分間が得られる訳です。つまり、その次の要素は勿論、その一つ前の要素に対しても同じことをする必要があります。Step-5ではそれを計算して行きます。
 Step-4ではascending orderで問題ありませんが、Step-5ではdescending orderにすることに注意しましょう。
-```
+```swift
 newElementEntries.enumerated().reversed().forEach { newIndex, element in
  guard newIndex > 0,
  case let .indexForTheOther(oldIndex) = item, oldIndex > 0,
@@ -139,7 +139,7 @@ newElementEntries.enumerated().reversed().forEach { newIndex, element in
 共通要素の場合は、順番を変える編集が必要です。よって `move`。
 Step-6では、これらの計算を行います。
 
-```
+```swift
 enum Difference<E> {
  case delete(E, Int)
  case insert(E, Int)
