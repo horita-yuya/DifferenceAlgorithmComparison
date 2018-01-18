@@ -155,8 +155,8 @@ Step-4に移りましょう。Step-3はユニークな要素に対してのみ�
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
     guard case let .theOther(index: oldIndex) = reference, oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
-        case let .symbolTable(entry: newEntry) = newElementEntries[newIndex + 1],
-        case let .symbolTable(entry: oldEntry) = oldElementEntries[oldIndex + 1],
+        case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
+        case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex + 1],
         newEntry === oldEntry else { return }
 
     newElementReferences[newIndex + 1] = .theOther(index: oldIndex + 1)
@@ -174,8 +174,8 @@ Step-4ではascending orderで問題ありませんが、Step-5ではdescending 
 ```swift
 newElementReferences.enumerated().reversed().forEach { newIndex, reference in
     guard case let .theOther(index: oldIndex) = reference, oldIndex > 0, newIndex > 0,
-        case let .symbolTableEntry(entry: newEntry) = newElementEntries[newIndex - 1],
-        case let .symbolTableEntry(entry: oldEntry) = oldElementEntries[oldIndex - 1],
+        case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],
+        case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex - 1],
         newEntry === oldEntry else { return }
 
     newElementReferences[newIndex - 1] = .theOther(index: oldIndex - 1)
