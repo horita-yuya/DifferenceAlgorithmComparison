@@ -34,7 +34,7 @@ private extension Heckel {
         newArray.forEach {
             let entry = symbolTable[$0.hashValue] ?? SymbolTableEntry()
             entry.newCounter.increment()
-            newElementReferences.append(.symbolTableEntry(entry))
+            newElementReferences.append(.symbolTable(entry: entry))
             symbolTable[$0.hashValue] = entry
         }
     }
@@ -44,44 +44,44 @@ private extension Heckel {
             let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
             entry.oldCounter.increment()
             entry.indicesInOld.append(index)
-            oldElementReferences.append(.symbolTableEntry(entry))
+            oldElementReferences.append(.symbolTable(entry: entry))
             symbolTable[element.hashValue] = entry
         }
     }
     
     static func stepThird(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
         newElementReferences.enumerated().forEach { newIndex, reference in
-            guard case let .symbolTableEntry(entry) = reference,
+            guard case let .symbolTable(entry: entry) = reference,
                 entry.oldCounter == .one,
                 entry.newCounter == .one else { return }
             
             let oldIndex = entry.indicesInOld.removeFirst()
-            newElementReferences[newIndex] = .indexForTheOther(oldIndex)
-            oldElementReferences[oldIndex] = .indexForTheOther(newIndex)
+            newElementReferences[newIndex] = .theOther(at: oldIndex)
+            oldElementReferences[oldIndex] = .theOther(at: newIndex)
         }
     }
     
     static func stepFourth(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
         newElementReferences.enumerated().forEach { newIndex, reference in
-            guard case let .indexForTheOther(oldIndex) = reference, oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
-                case let .symbolTableEntry(newEntry) = newElementReferences[newIndex + 1],
-                case let .symbolTableEntry(oldEntry) = oldElementReferences[oldIndex + 1],
+            guard case let .theOther(at: oldIndex) = reference, oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
+                case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
+                case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex + 1],
                 newEntry === oldEntry else { return }
             
-            newElementReferences[newIndex + 1] = .indexForTheOther(oldIndex + 1)
-            oldElementReferences[oldIndex + 1] = .indexForTheOther(newIndex + 1)
+            newElementReferences[newIndex + 1] = .theOther(at: oldIndex + 1)
+            oldElementReferences[oldIndex + 1] = .theOther(at: newIndex + 1)
         }
     }
     
     static func stepFifth(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
         newElementReferences.enumerated().reversed().forEach { newIndex, reference in
-            guard case let .indexForTheOther(oldIndex) = reference, oldIndex > 0, newIndex > 0,
-                case let .symbolTableEntry(newEntry) = newElementReferences[newIndex - 1],
-                case let .symbolTableEntry(oldEntry) = oldElementReferences[oldIndex - 1],
+            guard case let .theOther(at: oldIndex) = reference, oldIndex > 0, newIndex > 0,
+                case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],
+                case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex - 1],
                 newEntry === oldEntry else { return }
             
-            newElementReferences[newIndex - 1] = .indexForTheOther(oldIndex - 1)
-            oldElementReferences[oldIndex - 1] = .indexForTheOther(newIndex - 1)
+            newElementReferences[newIndex - 1] = .theOther(at: oldIndex - 1)
+            oldElementReferences[oldIndex - 1] = .theOther(at: newIndex - 1)
         }
     }
     
@@ -89,16 +89,16 @@ private extension Heckel {
         var differences: [Difference<T>] = []
         
         oldElementReferences.enumerated().forEach { oldIndex, reference in
-            guard case .symbolTableEntry = reference else { return }
+            guard case .symbolTable = reference else { return }
             differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
         }
         
         newElementReferences.enumerated().forEach { newIndex, reference in
             switch reference {
-            case .symbolTableEntry:
+            case .symbolTable:
                 differences.append(.insert(element: newArray[newIndex], index: newIndex))
                 
-            case .indexForTheOther(let oldIndex):
+            case let .theOther(at: oldIndex):
                 differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
             }
         }
@@ -128,7 +128,7 @@ private extension Heckel {
     }
     
     enum ElementReference {
-        case symbolTableEntry(SymbolTableEntry)
-        case indexForTheOther(Int)
+        case symbolTable(entry: SymbolTableEntry)
+        case theOther(at: Int)
     }
 }
