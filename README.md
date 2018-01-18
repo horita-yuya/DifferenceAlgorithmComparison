@@ -18,16 +18,16 @@ Heckel Algorithmでは、以下の様に3つのdata structureを考えます。
 
 まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素(のハッシュ値)をkey、symbol table entryをvalueとする辞書型のデータです。
 
-symbol table entryは配列O, N内、それぞれのkey要素の数(カウンター)とkey要素の配列O内でのインデックス番号を持つ値です。カウンターは配列O, Nそれぞれに対して管理するので2つ必要で、インデックス番号と合わせると、symbol table entryは3つのプロパティを持つことになります。以下のコードのSymbolTableEntryがそれに該当します。
+symbol table entryは配列O, N内、**それぞれのkey要素の数(カウンター)**と**key要素の配列O内でのインデックス**を持つ値です。カウンターは配列O, Nそれぞれに対して管理するので2つ必要で、インデックスと合わせると、symbol table entryは3つのプロパティを持つことになります。以下のコードのSymbolTableEntryがそれに該当します。
 
-実は、このカウンターが持つ値としては 0, 1 or many(.zero, .one, .many)の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで重複しない要素、もしくはユニークな要素を起点として、差分を取ることを考えるからです。詳細については後ほどの [6-Steps](#6steps) で説明します。
+実は、このカウンターが持つ値としては  *0, 1 or many(.zero, .one, .many)* の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで重複しない要素、もしくはユニークな要素を起点として、差分を取ることを考えるからです。詳細については後ほどの [6-Steps](#6steps) で説明します。
 
 ```swift
 let O: [Int] = [1, 2, 3, 3] // 1 and 2: unique, 3: not unique
 let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
 ```
 
-カウンターに加えてもう一つ、`key要素の配列O内でのインデックス番号` がありますが、これはそのままの意味ですね。専門的には `OLNO` と呼ばれます。
+カウンターに加えてもう一つ、`key要素の配列O内でのインデックス` がありますが、これはそのままの意味ですね。専門的には `OLNO` と呼ばれます。
 ```swift
 <E: Hashable>
 
@@ -53,11 +53,11 @@ class SymbolTableEntry {
     var indicesInOld: [Int]  // OLNO Field
 }
 ```
-`1. symbol table` をまとめると、配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。
+`1. symbol table` をまとめると、**配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。**
 
-それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と1:1対応する別の配列です。慣習的に配列OA, NAとします。`各要素と1:1対応する` とありますが、配列OA, NAにはそれぞれ、どのような値が入るのでしょうか。
+それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と`1:1対応する`別の配列です。慣習的に配列OA, NAとします。`各要素と1:1対応する` とありますが、配列OA, NAにはそれぞれ、どのような値が入るのでしょうか。
 
-今、元々の配列O, Nの要素の情報を持っているdata structureは、配列O, Nに加えて先ほどの `symbol table` (keyとして情報を持っている) がありますよね。`old, new element references`では、*自分自身以外* のdata structureの要素を参照して自分自身を再構成することを考えます。
+今、元々の配列O, Nの要素の情報を持っているdata structureは、配列O, Nに加えて先ほどの `symbol table` (keyとして情報を持っている) がありますよね。`old, new element references`では、**自分自身以外のdata structureの要素を参照して自分自身を再構成することを考えます。**
 
 配列OA, NAにはその参照が格納されます。全体で3つある参照元の内、自分自身以外を考えるので、参照元は `symbol table` と `もう片方の配列` の2つだけです。実装的には以下のようになります。
 
@@ -83,7 +83,7 @@ enum ElementReference {
   - NA: ElementReferenceを管理する配列 (newElementReferences)
 
 ()内はswift化した時の変数名とします。
-これ以降、他の登場人物は登場せず、これらを*うまく組み合わせて*行くことで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、*うまく組み合わせる*工夫とこの手順がHeckel Algorithmの核です。
+これ以降、他の登場人物は登場せず、これらを`うまく組み合わせて`行くことで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、`うまく組み合わせる`工夫とこの手順がHeckel Algorithmの核です。
 
 ## <a name="6steps"> 6-Steps
 
@@ -132,7 +132,7 @@ Step-1, 2では `newElementReferences, oldElementReferences` に `.symbolTableEn
 
 Step-3では、`oldCounter == newCounter == .one` の場合のみ計算を行います。
 
-Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zeroは初期値だとして、.manyは無視するということは、配列内に一つしか無い要素、すなわちユニークな要素をうまく使って計算するということです。
+Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zeroは初期値だとして、.manyは無視するということは、先ほど出てきた `ユニークな要素`をうまく使って計算するということです。
 
 それでは、ユニークな要素に対して、`.symbolTableEntry` を `.indexForTheOther` に変えて行きましょう。
 
@@ -147,11 +147,11 @@ newElementReferences.enumerated().forEach { newIndex, reference in
     oldElementReferences[oldIndex] = .indexForTheOther(newIndex)
 }
 ```
-**本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でindicesInOldを持つことで片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)**
+**本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でindicesInOldを持つことで、片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)**
 
 ### Step-4
 
-Step-4に移りましょう。Step-3はユニークな要素に対してのみ、参照元を`symbol table`から`the other array`に変えました。しかし、ユニークでなくても、もしくは被った要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
+Step-4に移りましょう。Step-3はユニークな要素に対してのみ、参照元を`symbol table`から`もう片方の配列`に変えました。しかし、ユニークでなくても、もしくは被った要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
     guard case let .indexForTheOther(oldIndex) = reference, oldIndex < oldElementEntries.count - 1, newIndex < newElementEntries.count - 1,
@@ -163,8 +163,8 @@ newElementReferences.enumerated().forEach { newIndex, reference in
     oldElementReferences[oldIndex + 1] = .indexForTheOther(newIndex + 1)
 }
 ```
-.symbolTableEntry(SymbolTableEntry)は配列O, Nで共通のsymbolTableへのreferenceで、`symbol table`からは要素をkeyとして得られました。
-つまり、`newEntry === oldEntry`、すなわち、entryが同じオブジェクトであればそのreferenceは同じ要素となります。
+.symbolTableEntry(SymbolTableEntry)は配列O, Nで共通のsymbolTableへのreferenceで、このassociated valueのSymbolTableEntryは`symbol table`からは要素をkeyとして得られました。
+つまり、`newEntry === oldEntry`、すなわち、entryが同じオブジェクトであればそのreferenceは同じ要素を指していることになります。
 上の式で、無事に `.indexForTheOther` に変えられそうですね。
 
 ### Step-5
@@ -186,7 +186,7 @@ newElementReferences.enumerated().reversed().forEach { newIndex, reference in
 
 ### Step-6
 
-ここまでで、配列O, Nに対応した配列OA, NAが決定されました。配列OA, NA内の各referenceが `symbol table`を指しているのか、`もう片方の配列`を指しているのかによって、*共通の要素・共通で無い要素を判別することができます。* 先ほど少しだけ触れましたが、
+ここまでで、配列O, Nに対応した配列OA, NAが決定されました。配列OA, NA内の各referenceが `symbol table`を指しているのか、`もう片方の配列`を指しているのかによって、*共通の要素・共通で無い要素を判別すること*ができます。 先ほど少しだけ触れましたが、
 - 共通で無い要素で配列Oに含まれているものは、配列Nに編集するためには削除しなければなりません。よって `delete`。
 - 共通で無い要素で配列Nに含まれているものは、配列Oに加えなければなりません。よって `insert`。
 - 共通要素の場合は、順番を変える編集が必要です。よって `move`。
@@ -217,7 +217,6 @@ newElementReferences.enumerated().forEach { newIndex, reference in
     }
 }
 ```
-共通でなければ`symbol table`を参照するしかなく、共通であれば`もう片方の配列`を参照するので、この様な計算で、delete, insert, moveのdiffが得られます。
-ここで、moveに関しては注意が必要です。元々の配列Oの各要素に対応して、配列OAがありました。もし配列Oと配列Nが同じであった場合、この配列は全てが  `.indexForTheOther` になります。これをそのまま `move` としてしまうと、あるインデックスから同じインデックスにmoveするという冗長なコマンドになってしまいます。これはあまり嬉しくないですね。その冗長なmoveを無くすことを考えましょう。
+共通でなければ`symbol table`を参照するしかなく、共通であれば`もう片方の配列`を参照します。よって、この様な計算で、delete, insert, moveのdiffが得られます。
 
-.....(画像用意しなきゃ)
+ここで、moveに関しては注意が必要です。元々の配列Oの各要素に対応して、配列OAがありました。もし配列Oと配列Nが同じであった場合、この配列は全てが  `.indexForTheOther` になります。これをそのまま `move` としてしまうと、あるインデックスから同じインデックスにmoveするという冗長なコマンドになってしまいます。これはあまり嬉しくないですね。その冗長なmoveを無くすことを考えましょう。
