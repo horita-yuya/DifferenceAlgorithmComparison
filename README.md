@@ -203,7 +203,7 @@ enum Difference<E> {
 var differences: [Difference<T>] = []
 
 oldElementReferences.enumerated().forEach { oldIndex, reference in
-    guard case .symbolTableEntry = reference else { return }
+    guard case .symbolTable = reference else { return }
     differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
 }
 
@@ -212,7 +212,7 @@ newElementReferences.enumerated().forEach { newIndex, reference in
         case .symbolTable:
             differences.append(.insert(element: newArray[newIndex], index: newIndex))
 
-        case let theOther(index: oldIndex):
+        case let .theOther(index: oldIndex):
             differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
     }
 }
