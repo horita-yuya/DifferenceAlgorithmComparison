@@ -15,8 +15,11 @@ Heckel Algorithmでは、以下の様に3つのdata structureを考えます。
 1. symbol table
 2. old element references
 3. new element references
+
 まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素(のハッシュ値)をkey、symbol table entryをvalueとする辞書型のデータです。
+
 symbol table entryは配列O, N内、それぞれのkey要素の数(カウンター)とkey要素の配列O内でのインデックス番号を持つ値です。カウンターは配列O, Nそれぞれに対して管理するので2つ必要で、インデックス番号と合わせると、symbol table entryは3つのプロパティを持つことになります。以下のコードのSymbolTableEntryがそれに該当します。
+
 実は、このカウンターが持つ値としては 0, 1 or many(.zero, .one, .many)の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで重複しない要素、もしくはユニークな要素を起点として、差分を取ることを考えるからです。詳細については後ほどの [6-Steps](#6steps) で説明します。
 
 ```swift
@@ -53,7 +56,10 @@ class SymbolTableEntry {
 `1. symbol table` をまとめると、配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。
 
 それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と1:1対応する別の配列です。慣習的に配列OA, NAとします。`各要素と1:1対応する` とありますが、配列OA, NAにはそれぞれ、どのような値が入るのでしょうか。
-今、元々の配列O, Nの要素の情報を持っているdata structureは、配列O, Nに加えて先ほどの `symbol table` (keyとして情報を持っている) がありますよね。`old, new element references`では、*自分自身以外* のdata structureの要素を参照して自分自身を再構成することを考えます。配列OA, NAにはその参照が格納されます。全体で3つある参照元の内自分自身以外を考えるので、参照元は `symbol table` と `もう片方の配列` の2つだけです。
+
+今、元々の配列O, Nの要素の情報を持っているdata structureは、配列O, Nに加えて先ほどの `symbol table` (keyとして情報を持っている) がありますよね。`old, new element references`では、*自分自身以外* のdata structureの要素を参照して自分自身を再構成することを考えます。
+
+配列OA, NAにはその参照が格納されます。全体で3つある参照元の内自分自身以外を考えるので、参照元は `symbol table` と `もう片方の配列` の2つだけです。
 
 ```swift
 enum ElementReference {
