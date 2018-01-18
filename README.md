@@ -4,8 +4,25 @@
 ここでいう編集とは、配列Aの要素を削除(delete)、配列Bの要素を追加(insert), 配列Aのi番目の要素を配列Bのj番目の要素に移動させる(move)、一連のこれらの作業のことを意味します。
 
 # Wigner-Fischer
-# Myers
-# Wu
+# Myers & Wu
+Introductionにある通り、配列Aと配列Bの差分を取るということは、元の配列Aから配列Bへ編集すると考えることが出来ます。例として以下のような配列を考えてみましょう。
+```swift
+enum Alphabet {
+ case a, b, c
+}
+
+let A: [Alphabet] = [.a, .b, .c, .a, .b, .b, .a]
+let B: [Alphabet] = [.c, .b, .a, .b, .a, .c]
+```
+配列A, Bを見比べながら差分を取っていくと、
+1. A[0]は.cではなく、.aがある - delete A[0]
+2. .aを削除すると、.bが先頭になるが.cではない - delete A[1]
+3. 配列Aで.cが先頭に来た。その次には.bが合ってほしい - insert B[1] to A[2]
+4. すると、先頭から.c .b .a .bとなり、その次が.bなので - delete A[5]
+5. 先頭から.c .b .a .b .a隣、その次の.cが合ってほしい - insert B[5] to A[6
+
+\- の横に行いたい編集作業をinsert, deleteのコマンドを使用して書いています。ここで、インデックスは常に編集前の元の配列を指しています。
+また、insert B[j] to A[i] は、配列Bの要素B[j]を配列Aの要素A[j]の直後に挿入するという操作を示しています。
 
 # Heckel
 Introduction では配列A, Bとしていましたが、Heckelでは、慣習的にOldとNewの頭文字を使って配列O, 配列Nとします。
