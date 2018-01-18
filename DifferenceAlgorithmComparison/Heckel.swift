@@ -120,6 +120,7 @@ private extension Heckel {
             }
         }
     }
+    
     class SymbolTableEntry {
         var oldCounter: Counter = .zero
         var newCounter: Counter = .zero
