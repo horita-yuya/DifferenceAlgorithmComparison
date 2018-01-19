@@ -172,8 +172,8 @@ newElementReferences.enumerated().forEach { newIndex, reference in
 
 Step-4に移りましょう。Step-3はユニークな要素に対してのみ、参照元を`.symbolTable`から`.theOther`に変えました。しかし、ユニークでなくても、もしくは被った要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
 ```swift
-newElementReferences.enumerated().forEach { newIndex, reference in
-    guard case let .theOther(index: oldIndex) = reference, oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
+newElementReferences.enumerated().forEach { newIndex, _ in
+    guard case let .theOther(index: oldIndex) = newElementReferences[newIndex], oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
         case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
         case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex + 1],
         newEntry === oldEntry else { return }
@@ -191,8 +191,8 @@ newElementReferences.enumerated().forEach { newIndex, reference in
 Step-5です。Step-4ではユニークな要素を起点にして、その次の要素を対象にしていました。しかし、ユニークな要素は疎らに存在していることも十分考えられる訳です。その次の要素は勿論、その一つ前の要素に対しても同じことをする必要があります。Step-5ではそれを計算して行きます。
 Step-4ではascending orderで問題ありませんが、Step-5ではdescending orderにすることに注意しましょう。
 ```swift
-newElementReferences.enumerated().reversed().forEach { newIndex, reference in
-    guard case let .theOther(index: oldIndex) = reference, oldIndex > 0, newIndex > 0,
+newElementReferences.enumerated().reversed().forEach { newIndex, _ in
+    guard case let .theOther(index: oldIndex) = newElementReferences[newIndex], oldIndex > 0, newIndex > 0,
         case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],
         case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex - 1],
         newEntry === oldEntry else { return }
