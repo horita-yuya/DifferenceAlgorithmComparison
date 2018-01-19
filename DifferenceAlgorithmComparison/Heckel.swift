@@ -8,10 +8,26 @@
 
 import Foundation
 
-enum Difference<E> {
+enum Difference<E: Equatable>: Equatable {
     case delete(element: E, index: Int)
     case insert(element: E, index: Int)
     case move(element: E, fromIndex: Int, toIndex: Int)
+    
+    static func ==(lhs: Difference<E>, rhs: Difference<E>) -> Bool {
+        switch (lhs, rhs) {
+        case let (.delete(le, li), .delete(re, ri)):
+            return le == re && li == ri
+            
+        case let (.insert(le, li), .insert(re, ri)):
+            return le == re && li == ri
+            
+        case let (.move(le, lfi, lti), .move(re, rfi, rti)):
+            return le == re && lfi == rfi && lti == rti
+            
+        default:
+            return false
+        }
+    }
 }
 
 struct Heckel {
