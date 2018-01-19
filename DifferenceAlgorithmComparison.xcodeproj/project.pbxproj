@@ -11,7 +11,6 @@
 		8C9CCD0C201033480055DEFE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD0B201033480055DEFE /* AppDelegate.swift */; };
 		8C9CCD0E201033480055DEFE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD0D201033480055DEFE /* ViewController.swift */; };
 		8C9CCD11201033480055DEFE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C9CCD0F201033480055DEFE /* Main.storyboard */; };
-		8C9CCD21201033480055DEFE /* DifferenceAlgorithmComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD20201033480055DEFE /* DifferenceAlgorithmComparisonTests.swift */; };
 		8C9CCD2C2010336D0055DEFE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 8C9CCD2B2010336D0055DEFE /* README.md */; };
 		8C9CCD2E201041A00055DEFE /* Heckel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD2D201041A00055DEFE /* Heckel.swift */; };
 		8C9CCD30201105800055DEFE /* Myers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD2F201105800055DEFE /* Myers.swift */; };
@@ -39,7 +38,6 @@
 		8C9CCD10201033480055DEFE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8C9CCD17201033480055DEFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C9CCD1C201033480055DEFE /* DifferenceAlgorithmComparisonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DifferenceAlgorithmComparisonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		8C9CCD20201033480055DEFE /* DifferenceAlgorithmComparisonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifferenceAlgorithmComparisonTests.swift; sourceTree = "<group>"; };
 		8C9CCD22201033480055DEFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C9CCD2B2010336D0055DEFE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		8C9CCD2D201041A00055DEFE /* Heckel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heckel.swift; sourceTree = "<group>"; };
@@ -116,7 +114,6 @@
 		8C9CCD1F201033480055DEFE /* DifferenceAlgorithmComparisonTests */ = {
 			isa = PBXGroup;
 			children = (
-				8C9CCD20201033480055DEFE /* DifferenceAlgorithmComparisonTests.swift */,
 				8C9CCD31201202C60055DEFE /* HeckelTest.swift */,
 				8C9CCD22201033480055DEFE /* Info.plist */,
 			);
@@ -346,7 +343,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8C9CCD21201033480055DEFE /* DifferenceAlgorithmComparisonTests.swift in Sources */,
 				8C9CCD32201202C60055DEFE /* HeckelTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
