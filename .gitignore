@@ -5,6 +5,8 @@
 ## Build generated
 build/
 DerivedData/
+##/.DS_Store
+Pods/
 
 ## Various settings
 *.pbxuser

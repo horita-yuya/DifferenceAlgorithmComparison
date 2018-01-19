@@ -85,19 +85,29 @@ private extension Heckel {
     
     static func stepSixth<T: Hashable & Equatable>(newArray: Array<T>, oldArray: Array<T>, newElementReferences: [ElementReference], oldElementReferences: [ElementReference]) -> [Difference<T>] {
         var differences: [Difference<T>] = []
+        var oldIndexOffsets: [Int: Int] = [:]
         
+        var offsetByDelete = 0
         oldElementReferences.enumerated().forEach { oldIndex, reference in
+            oldIndexOffsets[oldIndex] = offsetByDelete
+            
             guard case .symbolTable = reference else { return }
             differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
+            offsetByDelete += 1
         }
         
+        var offsetByInsert = 0
         newElementReferences.enumerated().forEach { newIndex, reference in
             switch reference {
             case .symbolTable:
                 differences.append(.insert(element: newArray[newIndex], index: newIndex))
+                offsetByInsert += 1
                 
-            case let .theOther(at: oldIndex):
+            case .theOther(let oldIndex) where oldIndex - oldIndexOffsets[oldIndex]! != newIndex - offsetByInsert:
                 differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
+                
+            default:
+                break
             }
         }
         
