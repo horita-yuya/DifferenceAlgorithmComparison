@@ -4,8 +4,25 @@
 ここでいう編集とは、配列Aの要素を削除(delete)、配列Bの要素を追加(insert), 配列Aのi番目の要素を配列Bのj番目の要素に移動させる(move)、一連のこれらの作業のことを意味します。
 
 # Wigner-Fischer
-# Myers
-# Wu
+# Myers & Wu
+Introductionにある通り、配列Aと配列Bの差分を取るということは、元の配列Aから配列Bへ編集すると考えることが出来ます。また、Myers, Wu Alrogorithmにおいて編集とは、配列の要素をdelete, insertすることと等価です。例として以下のような配列を考えてみましょう。
+```swift
+enum Alphabet {
+ case a, b, c
+}
+
+let A: [Alphabet] = [.a, .b, .c, .a, .b, .b, .a]
+let B: [Alphabet] = [.c, .b, .a, .b, .a, .c]
+```
+配列A, Bを見比べながら差分を取っていくと、
+1. A[0]は.cではなく、.aがある - delete A[0]
+2. .aを削除すると、.bが先頭になるが.cではない - delete A[1]
+3. 配列Aで.cが先頭に来た。その次には.bが合ってほしい - insert B[1] to A[2]
+4. すると、先頭から.c .b .a .bとなり、その次が.bなので - delete A[5]
+5. 先頭から.c .b .a .b .a隣、その次の.cが合ってほしい - insert B[5] to A[6]
+
+\- の横には、行いたい編集作業をinsert, deleteのコマンドを使用して書いています。deleteやinsertを配列に対して行うと、要素のインデックスがずれてしまいますが、ここではインデックスは常に編集前の元の配列を指しているという定義にします。
+また、insert B[j] to A[i] は、配列Bの要素B[j]を配列Aの要素A[j]の直後に挿入するという操作を示しています。
 
 # Heckel
 Introduction では配列A, Bとしていましたが、Heckelでは、慣習的にOldとNewの頭文字を使って配列O, 配列Nとします。
@@ -28,18 +45,22 @@ let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
 ```
 
 カウンターに加えてもう一つ、`key要素の配列O内でのインデックス` がありますが、これはそのままの意味ですね。専門的には `OLNO` と呼ばれます。
+さらに、この `OLNO` は、カウンターが.oneの場合のみ必要です。
+
 ```swift
 <E: Hashable>
 
 var symbolTable: [Int: SymbolTableEntry] = [:]
 
 enum Counter {
-    case zero, one, many
+    case zero
+    case one(index: Int) // OLNO
+    case many
 
-    mutating func increment() {
+    mutating func increment(withIndex index: Int) {
         switch self {
             case .zero:
-                self = .one
+                self = .one(index: index)
                 
             default:
                 self = .many
@@ -50,7 +71,6 @@ enum Counter {
 class SymbolTableEntry {
     var oldCounter: Counter
     var newCounter: Counter
-    var indicesInOld: [Int]  // OLNO Field
 }
 ```
 `1. symbol table` をまとめると、**配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。**
@@ -98,13 +118,14 @@ enum ElementReference {
 ```
 Step-1は比較前の準備と言ったところです。
 ```swift
-newArray.forEach {
-    let entry = symbolTable[$0.hashValue] ?? SymbolTableEntry()
-    entry.newCounter.increment()
+newArray.forEach { element in
+    let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
+    entry.newCounter.increment(withIndex: 0)
     newElementReferences.append(.symbolTable(entry: entry))
-    symbolTable[$0.hashValue] = entry
+    symbolTable[element.hashValue] = entry
 }
 ```
+ここで、withIndex: 0としているのは、SymbolTableEntryが管理するインデックスは、配列Oに対して管理すれば十分なので配列Nに対しては0を代入しています。
 
 ### Step-2
 
@@ -112,8 +133,7 @@ Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし�
 ```swift
 oldArray.enumerated().forEach { index, element
     let entry = symbolTable[element.hashValue] ?? TableEntry()
-    entry.oldCounter.increment()
-    entry.indicesInOld.append(index)
+    entry.oldCounter.increment(withIndex: index)
     oldElementReferences.append(.symbolTable(entry: entry))
     symbolTable[element.hashValue] = entry
 }
@@ -139,10 +159,9 @@ Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zer
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
     guard case let .symbolTable(entry: entry) = reference,
-        entry.oldCounter == .one,
-        entry.newCounter == .one else { return }
+        case .one(let oldIndex) = entry.oldCounter,
+        case .one = entry.newCounter else { return }
 
-    let oldIndex = entry.indicesInOld.removeFirst()
     newElementReferences[newIndex] = .theOther(index: oldIndex)
     oldElementReferences[oldIndex] = .theOther(index: newIndex)
 }

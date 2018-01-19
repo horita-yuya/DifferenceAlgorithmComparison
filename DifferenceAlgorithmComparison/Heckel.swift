@@ -31,19 +31,18 @@ struct Heckel {
 
 private extension Heckel {
     static func stepFirst<T: Hashable>(newArray: Array<T>, symbolTable: inout [Int: SymbolTableEntry], newElementReferences: inout [ElementReference]) {
-        newArray.forEach {
-            let entry = symbolTable[$0.hashValue] ?? SymbolTableEntry()
-            entry.newCounter.increment()
+        newArray.forEach { element in
+            let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
+            entry.newCounter.increment(withIndex: 0)
             newElementReferences.append(.symbolTable(entry: entry))
-            symbolTable[$0.hashValue] = entry
+            symbolTable[element.hashValue] = entry
         }
     }
     
     static func stepSecond<T: Hashable>(oldArray: Array<T>, symbolTable: inout [Int: SymbolTableEntry], oldElementReferences: inout [ElementReference]) {
         oldArray.enumerated().forEach { index, element in
             let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
-            entry.oldCounter.increment()
-            entry.indicesInOld.append(index)
+            entry.oldCounter.increment(withIndex: index)
             oldElementReferences.append(.symbolTable(entry: entry))
             symbolTable[element.hashValue] = entry
         }
@@ -52,10 +51,9 @@ private extension Heckel {
     static func stepThird(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
         newElementReferences.enumerated().forEach { newIndex, reference in
             guard case let .symbolTable(entry: entry) = reference,
-                entry.oldCounter == .one,
-                entry.newCounter == .one else { return }
+                case .one(let oldIndex) = entry.oldCounter,
+                case .one = entry.newCounter else { return }
             
-            let oldIndex = entry.indicesInOld.removeFirst()
             newElementReferences[newIndex] = .theOther(at: oldIndex)
             oldElementReferences[oldIndex] = .theOther(at: newIndex)
         }
@@ -109,12 +107,15 @@ private extension Heckel {
 
 private extension Heckel {
     enum Counter {
-        case zero, one, many
+        case zero
+        case one(index: Int)
+        case many
         
-        mutating func increment() {
+        mutating func increment(withIndex index: Int) {
             switch self {
             case .zero:
-                self = .one
+                self = .one(index: index)
+                
             default:
                 self = .many
             }
@@ -124,7 +125,6 @@ private extension Heckel {
     class SymbolTableEntry {
         var oldCounter: Counter = .zero
         var newCounter: Counter = .zero
-        var indicesInOld: [Int] = []
     }
     
     enum ElementReference {
