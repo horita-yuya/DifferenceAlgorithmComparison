@@ -31,11 +31,11 @@ struct Heckel {
 
 private extension Heckel {
     static func stepFirst<T: Hashable>(newArray: Array<T>, symbolTable: inout [Int: SymbolTableEntry], newElementReferences: inout [ElementReference]) {
-        newArray.forEach {
-            let entry = symbolTable[$0.hashValue] ?? SymbolTableEntry()
+        newArray.forEach { element in
+            let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
             entry.newCounter.increment(withIndex: 0)
             newElementReferences.append(.symbolTable(entry: entry))
-            symbolTable[$0.hashValue] = entry
+            symbolTable[element.hashValue] = entry
         }
     }
     
@@ -51,7 +51,7 @@ private extension Heckel {
     static func stepThird(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
         newElementReferences.enumerated().forEach { newIndex, reference in
             guard case let .symbolTable(entry: entry) = reference,
-                case let .one(index: oldIndex) = entry.oldCounter,
+                case .one(let oldIndex) = entry.oldCounter,
                 case .one = entry.newCounter else { return }
             
             newElementReferences[newIndex] = .theOther(at: oldIndex)
@@ -115,6 +115,7 @@ private extension Heckel {
             switch self {
             case .zero:
                 self = .one(index: index)
+                
             default:
                 self = .many
             }

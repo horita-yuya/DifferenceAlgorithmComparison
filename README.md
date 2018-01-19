@@ -45,18 +45,22 @@ let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
 ```
 
 カウンターに加えてもう一つ、`key要素の配列O内でのインデックス` がありますが、これはそのままの意味ですね。専門的には `OLNO` と呼ばれます。
+さらに、この `OLNO` は、カウンターが.oneの場合のみ必要です。
+
 ```swift
 <E: Hashable>
 
 var symbolTable: [Int: SymbolTableEntry] = [:]
 
 enum Counter {
-    case zero, one, many
+    case zero
+    case one(index: Int) // OLNO
+    case many
 
-    mutating func increment() {
+    mutating func increment(withIndex index: Int) {
         switch self {
             case .zero:
-                self = .one
+                self = .one(index: index)
                 
             default:
                 self = .many
@@ -67,7 +71,6 @@ enum Counter {
 class SymbolTableEntry {
     var oldCounter: Counter
     var newCounter: Counter
-    var indicesInOld: [Int]  // OLNO Field
 }
 ```
 `1. symbol table` をまとめると、**配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。**
@@ -115,13 +118,14 @@ enum ElementReference {
 ```
 Step-1は比較前の準備と言ったところです。
 ```swift
-newArray.forEach {
-    let entry = symbolTable[$0.hashValue] ?? SymbolTableEntry()
-    entry.newCounter.increment()
+newArray.forEach { element in
+    let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
+    entry.newCounter.increment(withIndex: 0)
     newElementReferences.append(.symbolTable(entry: entry))
-    symbolTable[$0.hashValue] = entry
+    symbolTable[element.hashValue] = entry
 }
 ```
+ここで、withIndex: 0としているのは、SymbolTableEntryが管理するインデックスは、配列Oに対して管理すれば十分なので配列Nに対しては0を代入しています。
 
 ### Step-2
 
@@ -129,8 +133,7 @@ Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし�
 ```swift
 oldArray.enumerated().forEach { index, element
     let entry = symbolTable[element.hashValue] ?? TableEntry()
-    entry.oldCounter.increment()
-    entry.indicesInOld.append(index)
+    entry.oldCounter.increment(withIndex: index)
     oldElementReferences.append(.symbolTable(entry: entry))
     symbolTable[element.hashValue] = entry
 }
@@ -156,10 +159,9 @@ Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zer
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
     guard case let .symbolTable(entry: entry) = reference,
-        entry.oldCounter == .one,
-        entry.newCounter == .one else { return }
+        case .one(let oldIndex) = entry.oldCounter,
+        case .one = entry.newCounter else { return }
 
-    let oldIndex = entry.indicesInOld.removeFirst()
     newElementReferences[newIndex] = .theOther(index: oldIndex)
     oldElementReferences[oldIndex] = .theOther(index: newIndex)
 }
