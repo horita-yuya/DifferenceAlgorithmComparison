@@ -82,12 +82,18 @@ final class HeckelSpec: QuickSpec {
                         ]
                     ),
                     // ascending and descending move
-                    (from:[1, 2, 3, 4, 5, 11, 7, 8, 9], to: [10, 1, 2, 3, 4, 5, 6, 9, 8, 7], expect: [
+                    (from: [1, 2, 3, 4, 5, 11, 7, 8, 9], to: [10, 1, 2, 3, 4, 5, 6, 9, 8, 7], expect: [
                         .delete(element: 11, index: 5),
                         .insert(element: 10, index: 0),
                         .insert(element: 6, index: 6),
-                        .move(element: 7, fromIndex: 6, toIndex: 9),
-                        .move(element: 9, fromIndex: 8, toIndex: 7)
+                        .move(element: 9, fromIndex: 8, toIndex: 7),
+                        .move(element: 7, fromIndex: 6, toIndex: 9)
+                        ]
+                    ),
+                    (from: [1, 2, 3, 4, 5, 6, 7], to: [1, 2, 6, 7, 3, 4, 5], expect: [
+                        .move(element: 3, fromIndex: 2, toIndex: 4),
+                        .move(element: 4, fromIndex: 3, toIndex: 5),
+                        .move(element: 5, fromIndex: 4, toIndex: 6)
                         ]
                     )
                 ]
