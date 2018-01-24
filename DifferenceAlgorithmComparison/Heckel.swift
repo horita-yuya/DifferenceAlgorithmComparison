@@ -39,8 +39,10 @@ struct Heckel {
         stepFirst(newArray: toArray, symbolTable: &symbolTable, newElementReferences: &newElementReferences)
         stepSecond(oldArray: fromArray, symbolTable: &symbolTable, oldElementReferences: &oldElementReferences)
         stepThird(newElementReferences: &newElementReferences, oldElementReferences: &oldElementReferences)
-        stepFourth(newElementReferences: &newElementReferences, oldElementReferences: &oldElementReferences)
-        stepFifth(newElementReferences: &newElementReferences, oldElementReferences: &oldElementReferences)
+        
+        // Proposing the way these steps can be skipped.
+        // stepFourth(newElementReferences: &newElementReferences, oldElementReferences: &oldElementReferences)
+        // stepFifth(newElementReferences: &newElementReferences, oldElementReferences: &oldElementReferences)
         return stepSixth(newArray: toArray, oldArray: fromArray, newElementReferences: newElementReferences, oldElementReferences: oldElementReferences)
     }
 }
@@ -49,7 +51,7 @@ private extension Heckel {
     static func stepFirst<T: Hashable>(newArray: Array<T>, symbolTable: inout [Int: SymbolTableEntry], newElementReferences: inout [ElementReference]) {
         newArray.forEach { element in
             let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
-            entry.newCounter.increment(withIndex: 0)
+            entry.newCounter += 1
             newElementReferences.append(.symbolTable(entry: entry))
             symbolTable[element.hashValue] = entry
         }
@@ -58,7 +60,8 @@ private extension Heckel {
     static func stepSecond<T: Hashable>(oldArray: Array<T>, symbolTable: inout [Int: SymbolTableEntry], oldElementReferences: inout [ElementReference]) {
         oldArray.enumerated().forEach { index, element in
             let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
-            entry.oldCounter.increment(withIndex: index)
+            entry.oldCounter += 1
+            entry.indicesInOld.append(index)
             oldElementReferences.append(.symbolTable(entry: entry))
             symbolTable[element.hashValue] = entry
         }
@@ -67,9 +70,11 @@ private extension Heckel {
     static func stepThird(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
         newElementReferences.enumerated().forEach { newIndex, reference in
             guard case let .symbolTable(entry: entry) = reference,
-                case .one(let oldIndex) = entry.oldCounter,
-                case .one = entry.newCounter else { return }
+                entry.oldCounter > 0 && entry.newCounter > 0,
+                entry.oldCounter > entry.iteratorInOld else { return }
             
+            let oldIndex = entry.indicesInOld[entry.iteratorInOld]
+            entry.iteratorInOld += 1
             newElementReferences[newIndex] = .theOther(at: oldIndex)
             oldElementReferences[oldIndex] = .theOther(at: newIndex)
         }
@@ -100,57 +105,70 @@ private extension Heckel {
     }
     
     static func stepSixth<T: Hashable & Equatable>(newArray: Array<T>, oldArray: Array<T>, newElementReferences: [ElementReference], oldElementReferences: [ElementReference]) -> [Difference<T>] {
-        var differences: [Difference<T>] = []
+        var deletesAndInserts: [Difference<T>] = []
+        var moves: [Difference<T>] = []
         var oldIndexOffsets: [Int: Int] = [:]
+        var newIndexOffsets: [Int: Int] = [:]
         
         var offsetByDelete = 0
         oldElementReferences.enumerated().forEach { oldIndex, reference in
             oldIndexOffsets[oldIndex] = offsetByDelete
             
             guard case .symbolTable = reference else { return }
-            differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
+            deletesAndInserts.append(.delete(element: oldArray[oldIndex], index: oldIndex))
             offsetByDelete += 1
         }
         
         var offsetByInsert = 0
         newElementReferences.enumerated().forEach { newIndex, reference in
+            newIndexOffsets[newIndex] = offsetByInsert
+            
             switch reference {
             case .symbolTable:
-                differences.append(.insert(element: newArray[newIndex], index: newIndex))
+                deletesAndInserts.append(.insert(element: newArray[newIndex], index: newIndex))
                 offsetByInsert += 1
                 
             case .theOther(let oldIndex) where oldIndex - oldIndexOffsets[oldIndex]! != newIndex - offsetByInsert:
-                differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
+                moves.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
                 
             default:
                 break
             }
         }
         
-        return differences
+        var offsetsByMove: [Int: Int] = [:]
+        moves.forEach {
+            guard case let .move(_, fromIndex, toIndex) = $0 else { return }
+            if fromIndex + 1 < toIndex {
+                for i in (fromIndex + 1)...toIndex {
+                    offsetsByMove[i, default: 0] -= 1
+                }
+            } else if toIndex < fromIndex - 1 {
+                for i in toIndex...fromIndex - 1 {
+                    offsetsByMove[i, default: 0] += 1
+                }
+            }
+        }
+        
+        let effectiveMoves = moves
+            .filter {
+                guard case let .move(_, fromIndex, toIndex) = $0 else { return false }
+                if fromIndex + offsetsByMove[fromIndex, default: 0] - oldIndexOffsets[fromIndex, default: 0] + newIndexOffsets[toIndex, default: 0] != toIndex {
+                    return true
+                }
+                return false
+        }
+        
+        return deletesAndInserts + effectiveMoves
     }
 }
 
 private extension Heckel {
-    enum Counter {
-        case zero
-        case one(index: Int)
-        case many
-        
-        mutating func increment(withIndex index: Int) {
-            switch self {
-            case .zero:
-                self = .one(index: index)
-                
-            default:
-                self = .many
-            }
-        }
-    }
-    
     class SymbolTableEntry {
-        var oldCounter: Counter = .zero
-        var newCounter: Counter = .zero
+        var oldCounter: Int = 0
+        var newCounter: Int = 0
+        var iteratorInOld: Int = 0
+        var indicesInOld: [Int] = []
     }
     
     enum ElementReference {
