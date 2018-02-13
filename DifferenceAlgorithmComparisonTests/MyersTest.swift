@@ -9,28 +9,48 @@
 
 import XCTest
 
-class MyersTest: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
-    func testExample() {
-        let a = [1, 2, 3, 4, 5]
-        let b = [1, 2, 3, 4, 5, 6]
+final class MyersTest: XCTestCase {
+    func testAccuracy() {
+        let patterns: [(from: [Int], to: [Int], expect: [Myers<Int>.Script])] = [
+            // normal insert
+            (from: [1, 2, 3, 4, 5], to: [1, 2, 3, 4, 5, 6], expect: [.insert(from: 5, to: 4)]),
+            // empty
+            (from: [], to: [], expect: []),
+            // delete to empty
+            (from: [1], to: [], expect: [.delete(at: 0)]),
+            // empty to insert
+            (from: [], to: [1], expect: [.insert(from: 0, to: 0)]),
+            // exchange
+            (from: [0], to: [1], expect:[
+                .delete(at: 0),
+                .insert(from: 0, to: 0)
+                ]
+            ),
+            // same sequence
+            (from: [1, 2, 3, 4, 5], to: [1, 2, 3, 4, 5], expect: []),
+            // random, the other having several same symbols
+            (from: [1, 2, 3, 4, 5], to: [2, 6, 4, 5, 6, 7], expect: [
+                .delete(at: 0),
+                .delete(at: 2),
+                .insert(from: 1, to: 1),
+                .insert(from: 4, to: 4),
+                .insert(from: 5, to: 4)
+                ]
+            ),
+            // random, both having several same symbols
+            (from: [1, 1, 3, 2, 5], to: [1, 6, 1, 3, 5], expect: [
+                .delete(at: 3),
+                .insert(from: 1, to: 0)
+                ]
+            )]
         
-        let diff = Myers.diff(from: a, to: b)
-        XCTAssertTrue(diff == [Myers.Script.insert(from: 5, to: 4)])
+        patterns.forEach { old, new, expect in
+            XCTAssertTrue(expect == Myers.diff(from: old, to: new))
+        }
     }
     
     func testPerformanceExample() {
-        let (old, new) = generate(count: 20000, removeRange: 0..<100, addRange: 10000..<15000)
+        let (old, new) = generate(count: 2000, removeRange: 0..<100, addRange: 100..<150)
         
         measure {
             _ = Myers.diff(from: old, to: new)

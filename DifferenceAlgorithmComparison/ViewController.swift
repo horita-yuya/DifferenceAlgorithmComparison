@@ -35,13 +35,41 @@ private extension ViewController {
     }
     
     func doTest() {
-        let (old, new) = generate(count: 2000, removeRange: 0..<100, addRange: 100..<150)
-        benchmark(name: "Myers") {
-            _ = Myers.diff(from: old, to: new)
-        }
+        let patterns: [(from: [Int], to: [Int], expect: [Myers<Int>.Script])] = [
+            // normal insert
+            (from: [1, 2, 3, 4, 5], to: [1, 2, 3, 4, 5, 6], expect: [.insert(from: 5, to: 4)]),
+            // empty
+            (from: [], to: [], expect: []),
+            // delete to empty
+            (from: [1], to: [], expect: [.delete(at: 0)]),
+            // empty to insert
+            (from: [], to: [1], expect: [.insert(from: 0, to: 0)]),
+            // exchange
+            (from: [0], to: [1], expect:[
+                .delete(at: 0),
+                .insert(from: 0, to: 0)
+                ]
+            ),
+            // same sequence
+            (from: [1, 2, 3, 4, 5], to: [1, 2, 3, 4, 5], expect: []),
+            // random, the other having several same symbols
+            (from: [1, 2, 3, 4, 5], to: [2, 6, 4, 5, 6, 7], expect: [
+                .delete(at: 0),
+                .delete(at: 2),
+                .insert(from: 1, to: 1),
+                .insert(from: 4, to: 4),
+                .insert(from: 5, to: 4)
+                ]
+            ),
+            // random, both having several same symbols
+            (from: [1, 1, 3, 2, 5], to: [1, 6, 1, 3, 5], expect: [
+                .delete(at: 3),
+                .insert(from: 1, to: 0)
+                ]
+            )]
         
-        benchmark(name: "CoolDiff") {
-            _ = Heckel.diff(from: old, to: new)
+        patterns.forEach { from, to, expext in
+            print(Myers.diff(from: from, to: to))
         }
     }
     

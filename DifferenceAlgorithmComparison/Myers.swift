@@ -51,15 +51,15 @@ struct Myers<E: Equatable> {
 }
 
 private extension Myers {
-    typealias Edge = (D: Int, from: Vertice, to: Vertice, script: Script)
+    typealias Edge = (D: Int, from: Vertice, to: Vertice, script: Script, snakeCount: Int)
     
     static func reverseTree(path: Array<Edge>, sinkVertice: Vertice) -> Array<Script> {
         var nextToVertice = sinkVertice
         var scripts = Array<Script>()
         
-        path.reversed().forEach { D, fromVertice, toVertice, script in
+        path.reversed().forEach { D, fromVertice, toVertice, script, snakeCount in
             guard toVertice == nextToVertice else { return }
-            nextToVertice = fromVertice
+            nextToVertice = fromVertice.snakeOffset(by: snakeCount)
             
             switch script {
             case .delete, .insert:
@@ -84,13 +84,14 @@ private extension Myers {
             return x == fromCount && y == toCount
         }
         
-        let snake: (Int, Int, Int) -> Int = { x, D, k in
+        let snake: (Int, Int, Int) -> (_x: Int, snakeCount: Int) = { x, D, k in
             var _x = x
+            var snakeCount = 0
             while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
                 _x += 1
-                path.append((D: D, from: .vertice(x: _x - 1, y: _x - 1 - k), to: .vertice(x: _x, y: _x - k), script: .same))
+                snakeCount += 1
             }
-            return _x
+            return (_x: _x, snakeCount: snakeCount)
         }
         
         for D in 0...totalCount {
@@ -100,6 +101,9 @@ private extension Myers {
                 // (x, D, k) => the x position on the k_line where the number of scripts is D
                 // scripts means insertion or deletion
                 var x = 0
+                var fromVertice = Vertice.vertice(x: 0, y: 0)
+                var toVertice = Vertice.vertice(x: fromCount, y: toCount)
+                var script = Script.same
                 if D == 0 { }
                 // k == -D, D will be the boundary k_line
                 // when k == -D, moving right on the Edit Graph(is delete script) from k - 1_line where D - 1 is unavailable.
@@ -111,21 +115,26 @@ private extension Myers {
                     // ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
                     // this moving bottom on the edit graph is compatible with insert script
                     x = furthest[index + 1]
-                    path.append((D: D, from: .vertice(x: x, y: x - k - 1), to: .vertice(x: x, y: x - k), script: .insert(from: x - k - 1, to: x - 1)))
+                    fromVertice = .vertice(x: x, y: x - k - 1)
+                    toVertice = .vertice(x: x, y: x - k)
+                    script = .insert(from: x - k - 1, to: x - 1)
                 } else {
                     // Getting initial x position
                     // ,using the futrhest X position on the k - 1_line where D - 1
                     // ,meaning get (x, D, k) by (x, D - 1, k - 1) + moving right + snake
                     // this moving right on the edit graph is compatible with delete script
                     x = furthest[index - 1] + 1
-                    path.append((D: D, from: .vertice(x: x - 1, y: x - k), to: .vertice(x: x, y: x - k), script: .delete(at: x - 1)))
+                    fromVertice = .vertice(x: x - 1, y: x - k)
+                    toVertice = .vertice(x: x, y: x - k)
+                    script = .delete(at: x - 1)
                 }
                 
                 // snake
                 // diagonal moving can be performed with 0 cost.
                 // `same` script is needed ?
-                let _x = snake(x, D, k)
+                let (_x, snakeCount) = snake(x, D, k)
                 
+                path.append((D: D, from: fromVertice, to: toVertice, script: script, snakeCount: snakeCount))
                 if isReachedAtSink(_x, _x - k) { return path }
                 furthest[index] = _x
             }
@@ -138,6 +147,11 @@ private extension Myers {
 private extension Myers {
     enum Vertice: Equatable {
         case vertice(x: Int, y: Int)
+        
+        func snakeOffset(by count: Int) -> Vertice {
+            guard case let .vertice(x, y) = self else { return self }
+            return .vertice(x: x - count, y: y - count)
+        }
         
         static func ==(lhs: Vertice, rhs: Vertice) -> Bool {
             guard case let .vertice(lx, ly) = lhs,
