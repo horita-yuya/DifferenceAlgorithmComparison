@@ -70,7 +70,9 @@ private extension ViewController {
         
         patterns.forEach { from, to, expext in
             print(Myers.diff(from: from, to: to))
+            print(originalMyers.diff(from: from, to: to))
         }
+        //print(Myers.diff(from: [1, 2, 3, 4, 5], to: [2, 6, 4, 5, 6, 7]))
     }
     
     func benchmark(name: String ,closure: () -> Void) {
