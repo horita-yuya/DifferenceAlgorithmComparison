@@ -10,9 +10,10 @@ import Foundation
 
 struct originalMyers<E: Equatable> {
     enum Script: CustomStringConvertible, Equatable {
-        case insert(from: Int, to: Int)
         case delete(at: Int)
-        case same //does not need ??? not sure yet
+        case insert(from: Int, to: Int)
+        case insertToHead(from: Int)
+        case same
         
         var description: String {
             switch self {
@@ -21,6 +22,9 @@ struct originalMyers<E: Equatable> {
                 
             case .insert(let fromIndex, let toIndex):
                 return "I(\(fromIndex), \(toIndex))"
+                
+            case .insertToHead(let fromIndex):
+                return "IH(\(fromIndex))"
                 
             case .same:
                 return "S"
@@ -35,6 +39,9 @@ struct originalMyers<E: Equatable> {
             case let (.insert(lfi, lti), .insert(rfi, rti)):
                 return lfi == rfi && lti == rti
                 
+            case let (.insertToHead(lfi), .insertToHead(rfi)):
+                return lfi == rfi
+                
             case (.same, .same):
                 return true
                 
@@ -45,8 +52,10 @@ struct originalMyers<E: Equatable> {
     }
     
     static func diff(from fromArray: Array<E>, to toArray: Array<E>) -> Array<Script> {
-        if fromArray.count == 0 && toArray.count > 0 {
-            return (0...toArray.count - 1).map { Script.insert(from: $0, to: 0) }
+        if fromArray.count == 0 && toArray.count == 0 {
+            return []
+        } else if fromArray.count == 0 && toArray.count > 0 {
+            return (0...toArray.count - 1).reversed().map { Script.insertToHead(from: $0) }
         } else if fromArray.count > 0 && toArray.count == 0 {
             return (0...fromArray.count - 1).map { Script.delete(at: $0) }
         } else {
@@ -68,7 +77,7 @@ private extension originalMyers {
             nextToVertice = fromVertice
             
             switch script {
-            case .delete, .insert:
+            case .delete, .insert, .insertToHead:
                 scripts.append(script)
                 
             case .same:
@@ -117,7 +126,8 @@ private extension originalMyers {
                     // ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
                     // this moving bottom on the edit graph is compatible with insert script
                     x = furthest[index + 1]
-                    path.append((D: D, from: .vertice(x: x, y: x - k - 1), to: .vertice(x: x, y: x - k), script: .insert(from: x - k - 1, to: x - 1)))
+                    let script: Script = x == 0 ? .insertToHead(from: x - k - 1) : .insert(from: x - k - 1, to: x - 1)
+                    path.append((D: D, from: .vertice(x: x, y: x - k - 1), to: .vertice(x: x, y: x - k), script: script))
                 } else {
                     // Getting initial x position
                     // ,using the futrhest X position on the k - 1_line where D - 1

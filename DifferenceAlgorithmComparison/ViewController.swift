@@ -72,7 +72,11 @@ private extension ViewController {
             print(Myers.diff(from: from, to: to))
             print(originalMyers.diff(from: from, to: to))
         }
-        //print(Myers.diff(from: [1, 2, 3, 4, 5], to: [2, 6, 4, 5, 6, 7]))
+        let k: [Int] = []
+        print(Myers.diff(from:k, to: k))
+        //print(originalMyers.diff(from: [], to: []))
+        //print(Myers.diff(from: .init("1362"), to: .init("31526")).reduce("") { $0 + $1.description })
+        //print(originalMyers.diff(from: .init("kitten"), to: .init("sitting")))
     }
     
     func benchmark(name: String ,closure: () -> Void) {

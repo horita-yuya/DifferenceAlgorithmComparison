@@ -10,8 +10,9 @@ import Foundation
 
 struct Myers<E: Equatable> {
     enum Script: CustomStringConvertible, Equatable {
-        case insert(from: Int, to: Int)
         case delete(at: Int)
+        case insert(from: Int, to: Int)
+        case insertToHead(from: Int)
         case sourceScript
         
         var description: String {
@@ -21,6 +22,9 @@ struct Myers<E: Equatable> {
                 
             case .insert(let fromIndex, let toIndex):
                 return "I(\(fromIndex), \(toIndex))"
+                
+            case .insertToHead(let fromIndex):
+                return "IH(\(fromIndex))"
                 
             case .sourceScript:
                 return "No Script"
@@ -35,6 +39,9 @@ struct Myers<E: Equatable> {
             case let (.insert(lfi, lti), .insert(rfi, rti)):
                 return lfi == rfi && lti == rti
                 
+            case let (.insertToHead(lfi), .insertToHead(rfi)):
+                return lfi == rfi
+                
             case (.sourceScript, .sourceScript):
                 return true
                 
@@ -45,8 +52,10 @@ struct Myers<E: Equatable> {
     }
     
     static func diff(from fromArray: Array<E>, to toArray: Array<E>) -> Array<Script> {
-        if fromArray.count == 0 && toArray.count > 0 {
-            return (0...toArray.count - 1).map { Script.insert(from: $0, to: 0) }
+        if fromArray.count == 0 && toArray.count == 0 {
+            return []
+        } else if fromArray.count == 0 && toArray.count > 0 {
+            return (0...toArray.count - 1).reversed().map { Script.insertToHead(from: $0) }
         } else if fromArray.count > 0 && toArray.count == 0 {
             return (0...fromArray.count - 1).map { Script.delete(at: $0) }
         } else {
@@ -68,7 +77,7 @@ private extension Myers {
             nextToVertice = fromVertice
             
             switch script {
-            case .delete, .insert:
+            case .delete, .insert, .insertToHead:
                 scripts.append(script)
                 
             case .sourceScript:
@@ -121,7 +130,7 @@ private extension Myers {
                     x = furthest[index + 1]
                     fromVertice = .vertice(x: x, y: x - k - 1)
                     toVertice = .vertice(x: x, y: x - k)
-                    script = .insert(from: x - k - 1, to: x - 1)
+                    script = x == 0 ? .insertToHead(from: x - k - 1) : .insert(from: x - k - 1, to: x - 1)
                 } else {
                     // Getting initial x position
                     // ,using the futrhest X position on the k - 1_line where D - 1
