@@ -72,11 +72,19 @@ final class MyersTest: XCTestCase {
         }
     }
     
-    func testPerformanceExample() {
-        let (old, new) = generate(count: 2000, removeRange: 0..<100, addRange: 100..<150)
-        
+    let (old, new) = generate(count: 20000, removeRange: 0..<0, addRange: 19999..<21000)
+    
+    func testPerformanceOriginalModel() {
+        measure {
+            _ = originalMyers.diff(from: old, to: new)
+        }
+    }
+    
+    func testPerformanceSnakeCountModel() {
         measure {
             _ = Myers.diff(from: old, to: new)
         }
     }
+    
+    
 }
