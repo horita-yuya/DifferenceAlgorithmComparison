@@ -74,6 +74,10 @@ private extension ViewController {
         }
         let k: [Int] = []
         print(Myers.diff(from:k, to: k))
+        
+        let a = [1, 2, 3, 4, 5]
+        let b = [1, 2, 3, 4, 5, 6, 7]
+        print(Wu.diff(from: a, to: b))
         //print(originalMyers.diff(from: [], to: []))
         //print(Myers.diff(from: .init("1362"), to: .init("31526")).reduce("") { $0 + $1.description })
         //print(originalMyers.diff(from: .init("kitten"), to: .init("sitting")))

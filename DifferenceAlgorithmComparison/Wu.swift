@@ -98,39 +98,36 @@ private extension Wu {
         var furthestReaching = Array(repeating: 0, count: totalCount + 2)
         var path = Array<Edge>()
         
-        let isReachedAtSink: (Int, Int) -> Bool = { x, y in
-            return x == fromCount && y == toCount
-        }
-        
-        let snake: (Int, Int) -> Int = { x, k in
-            var _x = x
-            while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
-                _x += 1
+        let snake: (Int, Int) -> Int = { k, y in
+            var _y = y
+            while _y - k < fromCount && _y < toCount && fromArray[_y - k] == toArray[_y] {
+                _y += 1
             }
-            return _x
+            return _y
         }
         
-        for p in 0...totalCount {
+        for p in 0...fromCount {
             let lowerRange = -p...delta - 1
-            let upperRange = (delta + 1...delta + p).reversed()
             
             for k in lowerRange {
-                let index = k + totalCount
+                let index = k + fromCount
                 let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
-                furthestReaching[index] = snake(m, k)
+                furthestReaching[index] = snake(k, m)
             }
             
-            for k in upperRange {
-                let index = k + totalCount
-                let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
-                furthestReaching[index] = snake(m, k)
+            if p >= 1 {
+                let upperRange = (delta + 1...delta + p).reversed()
+                for k in upperRange {
+                    let index = k
+                    let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
+                    furthestReaching[index] = snake(k, m)
+                }
             }
             
             let m = max(furthestReaching[delta - 1] + 1, furthestReaching[delta + 1])
-            furthestReaching[delta] = snake(m, delta)
+            furthestReaching[delta] = snake(delta, m)
             
             if furthestReaching[delta] == toCount {
-                print("Found: \(p)")
                 return []
             }
         }
