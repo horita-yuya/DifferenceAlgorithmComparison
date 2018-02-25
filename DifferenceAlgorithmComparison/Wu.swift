@@ -100,7 +100,7 @@ private extension Wu {
         
         let snake: (Int, Int) -> Int = { k, y in
             var _y = y
-            while _y - k < fromCount && _y < toCount && fromArray[_y - k] == toArray[_y] {
+            while _y - k < fromCount && _y < toCount && fromArray.safeGet(at: _y - k) == toArray.safeGet(at: _y) {
                 _y += 1
             }
             return _y
@@ -111,14 +111,14 @@ private extension Wu {
             
             for k in lowerRange {
                 let index = k + fromCount
-                let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
+                let m = k == -fromCount ? furthestReaching[index + 1] : max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
                 furthestReaching[index] = snake(k, m)
             }
             
             if p >= 1 {
                 let upperRange = (delta + 1...delta + p).reversed()
                 for k in upperRange {
-                    let index = k
+                    let index = k + fromCount
                     let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
                     furthestReaching[index] = snake(k, m)
                 }
@@ -127,7 +127,7 @@ private extension Wu {
             let m = max(furthestReaching[delta - 1] + 1, furthestReaching[delta + 1])
             furthestReaching[delta] = snake(delta, m)
             
-            if furthestReaching[delta] == toCount {
+            if furthestReaching[delta] >= toCount {
                 return []
             }
         }
@@ -150,5 +150,12 @@ private extension Wu {
                 case let .vertice(rx, ry) = rhs else { return false }
             return lx == rx && ly == ry
         }
+    }
+}
+
+private extension Array {
+    func safeGet(at index: Int) -> Element? {
+        guard (0...count - 1).contains(index) else { return nil }
+        return self[index]
     }
 }
