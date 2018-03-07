@@ -1,241 +1,147 @@
-# DifferenceAlgorithmComparison
-# Introduction
-配列Aと配列Bの差分を取るということは、配列A -> 配列Bに編集していく作業だと考えることができます。
-ここでいう編集とは、配列Aの要素を削除(delete)、配列Bの要素を追加(insert), 配列Aのi番目の要素を配列Bのj番目の要素に移動させる(move)、一連のこれらの作業のことを意味します。
+#  Myers Difference Algorithm
 
-# Wigner-Fischer
-# Myers & Wu
-Introductionにある通り、配列Aと配列Bの差分を取るということは、元の配列Aから配列Bへ編集すると考えることが出来ます。また、Myers, Wu Alrogorithmにおいて編集とは、配列の要素をdelete, insertすることと等価です。例として以下のような配列を考えてみましょう。
+Myers Difference Algorithm is the algorithm to find a longest common subsequence or shortest edit scripts (LCS/SES dual probrem) of two sequences by a simple O(ND) time, where N is the sum of the lengths of the two sequences. Common subsequence is the sequence of elements that appear in the same order in both sequences. Edit script will be discussed below.
+
+For example, assuming that sequence `A = ["1", "2", "3"]` and sequence `B = ["2", "3", "4"]`, `["2"], ["2", "3"]` are common sequences. Furthermore, the latter `["2", "3"]` is the longest common subsequence.  But `["1", "2"], ["3", "2"]` are not. Because, `["1", "2"]` contains `"1"` that is not included in `B`, `["3", "2"]` has elements are included in both, but the appearing order is not correct.
+
+## Finding the length of the Longest Common Subsequence with Myers Algorithm on Edit Graph
+
+### Edit Graph
+
+Myers Algorithm uses Edit Graph for solving LCS/SES problem. Edit Graph is the graph like below.
+
+<img src='Images/EditGraph.png' height="400">
+
+Here, we think about the length of the LCS of sequences `X = [A, B, C, A, B, B, A]`, `Y = [C, B, A, B, A, C]`.
+
+In Myers Algorithm, edit graph are prepared by
+
+1. Line the element of sequence `X` on the x axis. And do for `Y` on the y axis.
+2. Make grid and vertex at each point in the grid (x, y), `x in [0, N] and y in [0, M]`. `N` is the length of sequence `X`, `M` is of `Y`
+3. Line for `x - y = k`, this line called k-line. Black dot line is this and pink number is the value of k.
+3. Check the points `(i, j)`, where `X[i] = Y[j]`, called match point, light green one.
+4. Connect vertex `(i - 1, j - 1)` and vertex `(i, j)`, where `(i, j)` is match point, then diagonal edge appears.
+
+> **Note:** Here, the sequences' start index is 1 not 0, so `X[1] = A`, `Y[1] = C`
+
+We discuss about which path is the shortest from `source` to `sink`. Can move on the edges on the graph. I mean we can move on  the grid, horizontal and vertical edges, and the diagonal edges.
+
+The movements are compatible with the `Edit Scripts`, insert or delete. The word `Edit Scripts` appeared here, as referred at Introduction, SES is Shortest Edit Scripts.
+
+Let's get back on track. On this edit graph, the horizontal movement to vertex `(i, j)` is compatible with the script  `delete at index i from X`, the vertical movement to vertex `(i, j)` is compatible with the script `insert the element of Y at index j to immediately after the element of X at index i`. How about for the diagonal movement?. This movement to vertex `(i, j)` means `X[i] = Y[j]`, so no script needs.
+
+- horizontal movement -> delete
+- vertical movement -> insert
+- diagonal movement -> no script because both are same.
+
+Next, add cost 1 for non-diagonal movement, because they can be compatible with script. And 0 for diagonal movement, same means no script.
+
+The total cost for the minimum path, exploring from `source` to `sink`, is the same as the length of the Longest Common Subsequence or Shortest Edit Script.
+
+So, LCS/SES problem can be solved by finding the shortest path from `source` to `sink`.
+
+### Myers Algorithm
+
+As mentioned above, the problem of finding a shortest edit script can be reduced to finding a path from `source (0, 0)` to `sink (N, M)` with the fewest number of horizontal and vertical edges. Let `D-path` be a path starting at `source` that has exactly `D` non-diagonal edges, or must move non-diagonally D-times.
+
+For example, A 0-path consists solely of diagonal edges. This means both sequences are completely same.
+
+By a simple induction, D-path must consist of a (D-1)-path followed by a non-diagonal edge and then diagonal edges, which called `snake`. The minimum value of D is 0, both sequences being same. To the contrary, the maximum value of D is N + M because delete all elements from X and insert all elements from Y to X is the worst case edit scripts. For getting D, or the length of SES, running loop from 0 to N + M is enough.
+
 ```swift
-enum Alphabet {
- case a, b, c
-}
-
-let A: [Alphabet] = [.a, .b, .c, .a, .b, .b, .a]
-let B: [Alphabet] = [.c, .b, .a, .b, .a, .c]
+for D in 0...N + M
 ```
-配列A, Bを見比べながら差分を取っていくと、
-1. A[0]は.cではなく、.aがある - delete A[0]
-2. .aを削除すると、.bが先頭になるが.cではない - delete A[1]
-3. 配列Aで.cが先頭に来た。その次には.bが合ってほしい - insert B[1] to A[2]
-4. すると、先頭から.c .b .a .bとなり、その次が.bなので - delete A[5]
-5. 先頭から.c .b .a .b .a隣、その次の.cが合ってほしい - insert B[5] to A[6]
 
-\- の横には、行いたい編集作業をinsert, deleteのコマンドを使用して書いています。deleteやinsertを配列に対して行うと、要素のインデックスがずれてしまいますが、ここではインデックスは常に編集前の元の配列を指しているという定義にします。
-また、insert B[j] to A[i] は、配列Bの要素B[j]を配列Aの要素A[j]の直後に挿入するという操作を示しています。
+Next, thinking about, where is the furthest reaching point for D-path on k-line. Like below, moving horizontally from k-line reaches (k+1)-line, moving vertically from k-line reaches (k-1)-line. Red chalky line shows that.
 
-# Heckel
-Introduction では配列A, Bとしていましたが、Heckelでは、慣習的にOldとNewの頭文字を使って配列O, 配列Nとします。
-ある配列Oからある配列Nへの差分を取ることを考えましょう。
+<img src='Images/EditGraph_k_move.png' height="400">
 
-Heckel Algorithmでは、以下の様に3つのdata structureを考えます。
-1. symbol table
-2. old element references
-3. new element references
+So, threre are several end points of D-path, or D-path can end on several k-line. We need the information to get the next path ((D+1)-path) as mentioned above. In fact, D-path must end on
+k-line, where k in { -D, -D + 2, ....., D - 2, D }. This is so simple, starting point, `source` is `(0, 0)` on (k=0)-line. D is the number of non-diagonal edges and non-diagonal movement changes current k-line to (kpm1)-line. Because 0 is even number, if D is even number D-path will end on (even_k)-line, if D is odd number D-path will end on (odd_k)-line.
 
-まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素(のハッシュ値)をkey、symbol table entryをvalueとする辞書型のデータです。
-
-symbol table entryは配列O, N内、**それぞれのkey要素の数(カウンター)**と**key要素の配列O内でのインデックス**を持つ値です。カウンターは配列O, Nそれぞれに対して管理するので2つ必要で、インデックスと合わせると、symbol table entryは3つのプロパティを持つことになります。以下のコードのSymbolTableEntryがそれに該当します。
-
-実は、このカウンターが持つ値としては  *0, 1 or many(.zero, .one, .many)* の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで重複しない要素、もしくはユニークな要素を起点として、差分を取ることを考えるからです。詳細については後ほどの [6-Steps](#6steps) で説明します。
+Searching loop outline will be below.
 
 ```swift
-let O: [Int] = [1, 2, 3, 3] // 1 and 2: unique, 3: not unique
-let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
-```
-
-カウンターに加えてもう一つ、`key要素の配列O内でのインデックス` がありますが、これはそのままの意味ですね。専門的には `OLNO` と呼ばれます。
-さらに、この `OLNO` は、カウンターが.oneの場合のみ必要です。
-
-```swift
-<E: Hashable>
-
-var symbolTable: [Int: SymbolTableEntry] = [:]
-
-enum Counter {
-    case zero
-    case one(index: Int) // OLNO
-    case many
-
-    mutating func increment(withIndex index: Int) {
-        switch self {
-            case .zero:
-                self = .one(index: index)
-                
-            default:
-                self = .many
+for D in 0...N + M {
+    for k in stride(from: -D, through: D, by: 2) {
+        //Find the end point of the furthest reaching D-path in k-line.
+        if furthestReachingX == N && furthestReachingY == M {
+            // The D-path is the shortest path
+            // D is the length of Shortest Edit Script
+            return
         }
     }
 }
-
-class SymbolTableEntry {
-    var oldCounter: Counter
-    var newCounter: Counter
-}
 ```
-`1. symbol table` をまとめると、**配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。**
 
-それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と`1:1対応する`別の配列です。慣習的に配列OA, NAとします。`各要素と1:1対応する` とありますが、配列OA, NAにはそれぞれ、どのような値が入るのでしょうか。
+The D-path on k-line can be decomposed into
+- a furthest reaching (D-1)-path on (k-1)-line, followed by a horizontal edge, followed by `snake`.
+- a furthest reaching (D-1)-path on (k+1)-line, followed by a vertical edge, followed by `snake`.
+as discussed above.
 
-今、元々の配列O, Nの要素の情報を持っているdata structureは、配列O, Nに加えて先ほどの `symbol table` (keyとして情報を持っている) がありますよね。`old, new element references`では、**自分自身以外のdata structureの要素を参照して自分自身を再構成すること**を考えます。
+The Myers Algorithm key point are these.
+- D-path must end on k-line, where k in { -D, -D + 2, ....., D - 2, D }
+- The D-path on k-line can be decomposed into two patterns
 
-配列OA, NAにはその参照が格納されます。全体で3つある参照元の内、自分自身以外を考えるので、参照元は `.symbolTable` と `.theOther` の2つだけです。実装的には以下のようになります。
+thanks for these, the number of calculation become less.
 
 ```swift
-enum ElementReference {
-    case symbolTable(entry: SymbolTableEntry)
-    case theOther(index: Int)
-}
-```
+public struct MyersDifferenceAlgorithm<E: Equatable> {
+    public static func calculateShortestEditDistance(from fromArray: Array<E>, to toArray: Array<E>) -> Int {
+        let fromCount = fromArray.count
+        let toCount = toArray.count
+        let totalCount = toCount + fromCount
+        var furthestReaching = Array(repeating: 0, count: 2 * totalCount + 1)
 
-さて、一度ここまでの登場人物をまとめます。
-- symbol table :
-  - 2つの配列O, Nの各要素をkeyとする辞書型データ
-  - 配列O, Nで共通
-  - symbol table entry: key-valueのvalueを管理
-    - その要素がそれぞれの配列に何個含まれてるのか。
-    - その要素が古い方の配列O内で何番目のインデックスなのか。
-- Old
-  - O: 配列 (oldArray)
-  - OA: ElementReferenceを管理する配列 (oldElementReferences)
-- New
-  - N: 配列 (newArray)
-  - NA: ElementReferenceを管理する配列 (newElementReferences)
+        let isReachedAtSink: (Int, Int) -> Bool = { x, y in
+            return x == fromCount && y == toCount
+        }
 
-()内はswift化した時の変数名とします。
-これ以降、他の登場人物は登場せず、これらを`うまく組み合わせて`行くことで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、`うまく組み合わせる`工夫とこの手順がHeckel Algorithmの核です。
+        let snake: (Int, Int, Int) -> Int = { x, D, k in
+            var _x = x
+            while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
+                _x += 1
+            }
+            return _x
+        }
 
-## <a name="6steps"> 6-Steps
+        for D in 0...totalCount {
+            for k in stride(from: -D, through: D, by: 2) {
+                let index = k + totalCount
+            
+                // (x, D, k) => the x position on the k_line where the number of scripts is D
+                // scripts means insertion or deletion
+                var x = 0
+                if D == 0 { }
+                    // k == -D, D will be the boundary k_line
+                    // when k == -D, moving right on the Edit Graph(is delete script) from k - 1_line where D - 1 is unavailable.
+                    // when k == D, moving bottom on the Edit Graph(is insert script) from k + 1_line where D - 1 is unavailable.
+                    // furthestReaching x position has higher calculating priority. (x, D - 1, k - 1), (x, D - 1, k + 1)
+                else if k == -D || k != D && furthestReaching[index - 1] < furthestReaching[index + 1] {
+                    // Getting initial x position
+                    // ,using the furthestReaching X position on the k + 1_line where D - 1
+                    // ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
+                    // this moving bottom on the edit graph is compatible with insert script
+                    x = furthestReaching[index + 1]
+                } else {
+                    // Getting initial x position
+                    // ,using the futrhest X position on the k - 1_line where D - 1
+                    // ,meaning get (x, D, k) by (x, D - 1, k - 1) + moving right + snake
+                    // this moving right on the edit graph is compatible with delete script
+                    x = furthestReaching[index - 1] + 1
+                }
+                
+                // snake
+                // diagonal moving can be performed with 0 cost.
+                // `same` script is needed ?
+                let _x = snake(x, D, k)
+                
+                if isReachedAtSink(_x, _x - k) { return D }
+                furthestReaching[index] = _x
+            }
+        }
 
-### Step-1
-
-それでは、1-6 Stepの内 Step-1から見て行きましょう。手順は以下の通りです。
-```
-1. 配列Nの各要素をキーとして、symbol table entryを作成。(ただし、そのキーのentryが存在している時は、そのentryを渡す。)
-2. その要素のnewCounterをインクリメントする
-3. NA[i]に.symbolTable(entry:)をセットする。(iはその要素のインデックス)
-4. symbol tableに[key: value] = [N[i], NA[i]]として、entryを登録する。
-```
-Step-1は比較前の準備と言ったところです。
-```swift
-newArray.forEach { element in
-    let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
-    entry.newCounter.increment(withIndex: 0)
-    newElementReferences.append(.symbolTable(entry: entry))
-    symbolTable[element.hashValue] = entry
-}
-```
-ここで、withIndex: 0としているのは、SymbolTableEntryが管理するインデックスは、配列Oに対して管理すれば十分なので配列Nに対しては0を代入しています。
-
-### Step-2
-
-Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし、Oldの場合、SymbolTableEntry.indicesInOldの管理も必要でしたね。
-```swift
-oldArray.enumerated().forEach { index, element
-    let entry = symbolTable[element.hashValue] ?? TableEntry()
-    entry.oldCounter.increment(withIndex: index)
-    oldElementReferences.append(.symbolTable(entry: entry))
-    symbolTable[element.hashValue] = entry
-}
-```
-すでに、6つの内、2つのStepが完了しました。
-
-これからStep-3, 4, 5に移りますが、その前にこの3つのStepを大まかに説明します。
-
-Step-1, 2では `newElementReferences, oldElementReferences` に `.symbolTable`だけを登録していました。これは一旦全て `.symbolTable` を参照させることで、配列の比較のための準備をしているのです。
-
-これから、それらの参照を可能な限り `.theOther` に変えて行きます。つまり、symbol tableからもう片方の配列に参照を変えるということです。しかし、その要素がもう片方の配列に存在していなければ、参照はできません。その場合はそのまま `.symbolTable`を参照したままにします。
-
-そうなると、最終的には `.symbolTable` は共通で持たない要素を `.theOther` は共通の要素を示しそうな雰囲気がします。ということは、、 `.symbolTable`が `delete, insert`を、`.theOther` が `move` になるのか？？結論は一旦おいておきましょう。
-
-### Step-3
-
-Step-3では、`oldCounter == newCounter == .one` の場合のみ計算を行います。
-
-Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zeroは初期値だとして、.manyは無視するということは、先ほど出てきた `ユニークな要素`をうまく使って計算するということです。`oldCounter == newCounter == .one` の条件は、各配列でそのユニークな要素がただ一つの共通要素になっていることになります。
-
-それでは、ユニークな要素に対して参照先を`.symbolTable` から `.theOther` に変えて行きましょう。
-
-```swift
-newElementReferences.enumerated().forEach { newIndex, reference in
-    guard case let .symbolTable(entry: entry) = reference,
-        case .one(let oldIndex) = entry.oldCounter,
-        case .one = entry.newCounter else { return }
-
-    newElementReferences[newIndex] = .theOther(index: oldIndex)
-    oldElementReferences[oldIndex] = .theOther(index: newIndex)
-}
-```
-**本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でindicesInOldを持つことで、片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)**
-
-### Step-4
-
-Step-4に移りましょう。Step-3はユニークな要素に対してのみ、参照元を`.symbolTable`から`.theOther`に変えました。しかし、ユニークでなくても、もしくは被った要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
-```swift
-newElementReferences.enumerated().forEach { newIndex, _ in
-    guard case let .theOther(index: oldIndex) = newElementReferences[newIndex], oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
-        case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
-        case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex + 1],
-        newEntry === oldEntry else { return }
-
-    newElementReferences[newIndex + 1] = .theOther(index: oldIndex + 1)
-    oldElementReferences[oldIndex + 1] = .theOther(index: newIndex + 1)
-}
-```
-.symbolTable(entry: SymbolTableEntry)は配列O, Nで共通のsymbolTableへの参照で、このassociated valueのSymbolTableEntryは`symbol table`からは要素をkeyとして得られました。
-つまり、`newEntry === oldEntry`、すなわち、entryが同じオブジェクトであればそのreferenceは同じ要素を指していることになります。
-上の式で、無事に参照先を `.theOther` に変えられそうですね。
-
-### Step-5
-
-Step-5です。Step-4ではユニークな要素を起点にして、その次の要素を対象にしていました。しかし、ユニークな要素は疎らに存在していることも十分考えられる訳です。その次の要素は勿論、その一つ前の要素に対しても同じことをする必要があります。Step-5ではそれを計算して行きます。
-Step-4ではascending orderで問題ありませんが、Step-5ではdescending orderにすることに注意しましょう。
-```swift
-newElementReferences.enumerated().reversed().forEach { newIndex, _ in
-    guard case let .theOther(index: oldIndex) = newElementReferences[newIndex], oldIndex > 0, newIndex > 0,
-        case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],
-        case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex - 1],
-        newEntry === oldEntry else { return }
-
-    newElementReferences[newIndex - 1] = .theOther(index: oldIndex - 1)
-    oldElementReferences[oldIndex - 1] = .theOther(index: newIndex - 1)
-}
-```
-さて、6つのStepの内、5つが完了しました。
-
-### Step-6
-
-ここまでで、配列O, Nに対応した配列OA, NAが決定されました。配列OA, NA内の各referenceが `.symbolTable`を指しているのか、`.theOther`を指しているのかによって、*共通の要素・共通で無い要素を判別すること*ができます。 先ほど少しだけ触れましたが、
-- 共通で無い要素で配列Oに含まれているものは、配列Nに編集するためには削除しなければなりません。よって `delete`。
-- 共通で無い要素で配列Nに含まれているものは、配列Oに加えなければなりません。よって `insert`。
-- 共通要素の場合は、順番を変える編集が必要です。よって `move`。
-
-Step-6では、これらの計算を行います。
-
-```swift
-enum Difference<E> {
-    case delete(element: E, index: Int)
-    case insert(element: E, index: Int)
-    case move(element: E, fromIndex: Int, toIndex: Int)
-}
-
-var differences: [Difference<T>] = []
-
-oldElementReferences.enumerated().forEach { oldIndex, reference in
-    guard case .symbolTable = reference else { return }
-    differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
-}
-
-newElementReferences.enumerated().forEach { newIndex, reference in
-    switch reference {
-        case .symbolTable:
-            differences.append(.insert(element: newArray[newIndex], index: newIndex))
-
-        case let .theOther(index: oldIndex):
-            differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
+        fatalError("Never comes here")
     }
 }
 ```
-共通でなければ`.symbolTable`を参照するしかなく、共通であれば`.theOther`を参照します。よって、この様な計算で、delete, insert, moveのdiffが得られます。
-
-ここで、moveに関しては注意が必要です。元々の配列Oの各要素に対応して、配列OAがありました。もし配列Oと配列Nが同じであった場合、この配列は全ての参照先が  `.theOther` になります。これをそのまま `move` としてしまうと、あるインデックスから同じインデックスにmoveするという冗長なコマンドになってしまいます。これはあまり嬉しくないですね。その冗長なmoveを無くすことを考えましょう。

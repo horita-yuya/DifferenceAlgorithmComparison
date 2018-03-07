@@ -69,14 +69,15 @@ private extension ViewController {
             )]
         
         patterns.forEach { from, to, expext in
-            print(Myers.diff(from: from, to: to))
-            print(originalMyers.diff(from: from, to: to))
+            //print(Myers.diff(from: from, to: to))
+            //print(originalMyers.diff(from: from, to: to))
         }
         let k: [Int] = []
-        print(Myers.diff(from:k, to: k))
+        //print(Myers.diff(from:k, to: k))
         
         let a = [1, 2, 3, 4, 5]
         let b = [1, 2, 3, 4, 5, 6, 7]
+        print(Myers.diff(from: a, to: b))
         print(Wu.diff(from: a, to: b))
         //print(originalMyers.diff(from: [], to: []))
         //print(Myers.diff(from: .init("1362"), to: .init("31526")).reduce("") { $0 + $1.description })
