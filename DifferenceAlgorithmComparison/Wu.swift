@@ -66,7 +66,7 @@ struct Wu<E: Equatable> {
 }
 
 private extension Wu {
-    typealias Edge = (D: Int, from: Vertice, to: Vertice, script: Script, snakeCount: Int)
+    typealias Edge = (P: Int, from: Vertice, to: Vertice, script: Script, snakeCount: Int)
     
     static func reverseTree(path: Array<Edge>, sinkVertice: Vertice) -> Array<Script> {
         var nextToVertice = sinkVertice
@@ -95,12 +95,12 @@ private extension Wu {
         
         let totalCount = toCount + fromCount
         let delta = toCount - fromCount
-        var furthestReaching = Array(repeating: 0, count: totalCount + 2)
+        var furthestReaching = Array(repeating: -1, count: totalCount + 2)
         var path = Array<Edge>()
         
         let snake: (Int, Int) -> Int = { k, y in
             var _y = y
-            while _y - k < fromCount && _y < toCount && fromArray.safeGet(at: _y - k) == toArray.safeGet(at: _y) {
+            while (0..<fromCount).contains(_y - k) && (0..<toCount).contains(_y) && fromArray[_y - k] == toArray[_y] {
                 _y += 1
             }
             return _y
@@ -111,23 +111,85 @@ private extension Wu {
             
             for k in lowerRange {
                 let index = k + fromCount
-                let m = k == -fromCount ? furthestReaching[index + 1] : max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
-                furthestReaching[index] = snake(k, m)
+                var fromVertice = Vertice.vertice(x: 0, y: 0)
+                var toVertice = Vertice.vertice(x: fromCount, y: toCount)
+                var script = Script.sourceScript
+                var _y = 0
+                
+                // moving bottom, means delete script
+                // thinking about it on Wu's EditGraph, not myers'
+                if p == 0 && k == 0 {}
+                else if furthestReaching[index - 1] + 1 < furthestReaching[index + 1] {
+                    _y = furthestReaching[index + 1]
+                    fromVertice = .vertice(x: _y - k, y: _y)
+                    toVertice = .vertice(x: _y - k + 1, y: _y)
+                    script = .delete(at: _y - k)
+                } else {
+                    _y = furthestReaching[index - 1] + 1
+                    fromVertice = .vertice(x: _y - k, y: _y - 1)
+                    toVertice = .vertice(x: _y - k, y: _y)
+                    script = Script.insert(from: _y, to: _y - k)
+                }
+                
+                furthestReaching[index] = snake(k, _y)
+                if p != 0 || k != 0 {
+                    path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 100))
+                }
             }
             
             if p >= 1 {
                 let upperRange = (delta + 1...delta + p).reversed()
                 for k in upperRange {
                     let index = k + fromCount
-                    let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
-                    furthestReaching[index] = snake(k, m)
+                    var fromVertice = Vertice.vertice(x: 0, y: 0)
+                    var toVertice = Vertice.vertice(x: fromCount, y: toCount)
+                    var script = Script.sourceScript
+                    let _y: Int
+                    
+                    // moving bottom, means delete script
+                    // thinking about it on Wu's EditGraph, not myers'
+                    if furthestReaching[index - 1] + 1 < furthestReaching[index + 1] {
+                        _y = furthestReaching[index + 1]
+                        fromVertice = .vertice(x: _y - k, y: _y)
+                        toVertice = .vertice(x: _y - k + 1, y: _y)
+                        script = .delete(at: _y - k)
+                    } else {
+                        _y = furthestReaching[index - 1] + 1
+                        fromVertice = .vertice(x: _y - k, y: _y - 1)
+                        toVertice = .vertice(x: _y - k, y: _y)
+                        script = Script.insert(from: _y, to: _y - k)
+                    }
+                    //let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
+                    furthestReaching[index] = snake(k, _y)
+                    path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 0))
                 }
             }
             
-            let m = max(furthestReaching[delta - 1] + 1, furthestReaching[delta + 1])
-            furthestReaching[delta] = snake(delta, m)
+            let deltaIndex = delta + fromCount
+            var fromVertice = Vertice.vertice(x: 0, y: 0)
+            var toVertice = Vertice.vertice(x: fromCount, y: toCount)
+            var script = Script.sourceScript
+            let _y: Int
             
-            if furthestReaching[delta] >= toCount {
+            if furthestReaching[deltaIndex - 1] + 1 < furthestReaching[deltaIndex + 1] {
+                _y = furthestReaching[deltaIndex + 1]
+                fromVertice = .vertice(x: _y - delta, y: _y)
+                toVertice = .vertice(x: _y - delta + 1, y: _y)
+                script = .delete(at: _y - delta)
+            } else {
+                _y = furthestReaching[deltaIndex - 1] + 1
+                fromVertice = .vertice(x: _y - delta, y: _y - 1)
+                toVertice = .vertice(x: _y - delta, y: _y)
+                script = Script.insert(from: _y, to: _y - delta)
+            }
+            
+            furthestReaching[deltaIndex] = snake(delta, _y)
+            path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 100))
+
+            
+            if furthestReaching[deltaIndex] == toCount {
+                print(2 * p + delta)
+                print(path)
                 return []
             }
         }
@@ -135,7 +197,12 @@ private extension Wu {
         return []
     }
 }
-
+/*
+x = furthest[index - 1] + 1
+fromVertice = .vertice(x: x - 1, y: x - k)
+toVertice = .vertice(x: x, y: x - k)
+script = .delete(at: x - 1)
+*/
 private extension Wu {
     enum Vertice: Equatable {
         case vertice(x: Int, y: Int)
@@ -150,12 +217,5 @@ private extension Wu {
                 case let .vertice(rx, ry) = rhs else { return false }
             return lx == rx && ly == ry
         }
-    }
-}
-
-private extension Array {
-    func safeGet(at index: Int) -> Element? {
-        guard (0...count - 1).contains(index) else { return nil }
-        return self[index]
     }
 }
