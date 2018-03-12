@@ -11,13 +11,13 @@ import UIKit
 final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        calculate()
+        //calculate()
         //doTest()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //doTest()
+        doTest()
     }
 }
 
@@ -88,10 +88,16 @@ private extension ViewController {
         
         //let a = [1, 2, 3, 4, 5]
         //let b = [1, 2, 3, 4, 5, 6]
-        let a = [0]
-        let b = [1]
-        print(Myers.diff(from: a, to: b))
-        print(Wu.diff(from: a, to: b))
+        //let a = [0]
+        //let b = [1]
+        //let a = [1, 1, 3, 2, 5]
+        //let b = [1, 6, 1, 3, 5]
+        //let a = [1, 2]
+        //let b = [1]
+        let a = "1362"
+        let b = "31526"
+        //print(Myers.diff(from: a, to: b))
+        print(Wu.diff(from: .init(a), to: .init(b)))
         //print(originalMyers.diff(from: [], to: []))
         //print(Myers.diff(from: .init("1362"), to: .init("31526")).reduce("") { $0 + $1.description })
         //print(originalMyers.diff(from: .init("kitten"), to: .init("sitting")))
