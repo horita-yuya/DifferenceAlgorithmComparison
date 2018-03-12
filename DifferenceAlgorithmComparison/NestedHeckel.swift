@@ -8,16 +8,56 @@
 
 import Foundation
 
-struct NestedHeckel<T: Hashable> {
-    typealias Nested = (referenceIndex: (section: Int, index: Int), element: T)
+public struct ReferenceIndex: Equatable {
+    let index: Int
+    let section: Int
     
-    static func diff(from fromNestedArray: Array<Array<T>>, to toNestedArray: Array<Array<T>>) -> [Difference<T>] {
+    init(index: Int, section: Int) {
+        self.index = index
+        self.section = section
+    }
+    
+    public static func == (lhs: ReferenceIndex, rhs: ReferenceIndex) -> Bool {
+        return lhs.index == rhs.index && lhs.section == rhs.index
+    }
+}
+
+public enum NestableDifference<E: Equatable>: Equatable {
+    case delete(element: E, referenceIndex: ReferenceIndex)
+    case insert(element: E, referenceIndex: ReferenceIndex)
+    case move(element: E, fromReferenceIndex: ReferenceIndex, toReferenceIndex: ReferenceIndex)
+    
+    public static func == (lhs: NestableDifference<E>, rhs: NestableDifference<E>) -> Bool {
+        switch (lhs, rhs) {
+        case let (.delete(le, li), .delete(re, ri)):
+            return le == re && li == ri
+            
+        case let (.insert(le, li), .insert(re, ri)):
+            return le == re && li == ri
+            
+        case let (.move(le, lfi, lti), .move(re, rfi, rti)):
+            return le == re && lfi == rfi && lti == rti
+            
+        default:
+            return false
+        }
+    }
+}
+
+public struct NestedHeckel<T: Hashable> {
+    typealias NestedElement = (referenceIndex: ReferenceIndex, element: T)
+    
+    public static func diff(from fromNestedArray: [[T]], to toNestedArray: [[T]]) -> [NestableDifference<T>] {
         var symbolTable: [Int: SymbolTableEntry] = [:]
         var oldElementReferences: [ElementReference] = []
         var newElementReferences: [ElementReference] = []
         
-        let fromArray: [Nested] = fromNestedArray.enumerated().flatMap { section, array in array.enumerated().flatMap { (referenceIndex: (section: section, index: $0), element: $1) } }
-        let toArray: [Nested] = toNestedArray.enumerated().flatMap { section, array in array.enumerated().flatMap { (referenceIndex: (section: section, index: $0), element: $1) } }
+        let fromArray: [NestedElement] = fromNestedArray.enumerated().flatMap { section, array in
+            array.enumerated().flatMap { (referenceIndex: .init(index: $0, section: section), element: $1) }
+        }
+        let toArray: [NestedElement] = toNestedArray.enumerated().flatMap { section, array in
+            array.enumerated().flatMap { (referenceIndex: .init(index: $0, section: section), element: $1) }
+        }
         
         stepFirst(newArray: toArray, symbolTable: &symbolTable, newElementReferences: &newElementReferences)
         stepSecond(oldArray: fromArray, symbolTable: &symbolTable, oldElementReferences: &oldElementReferences)
@@ -29,7 +69,7 @@ struct NestedHeckel<T: Hashable> {
 }
 
 private extension NestedHeckel {
-    static func stepFirst(newArray: Array<Nested>, symbolTable: inout [Int: SymbolTableEntry], newElementReferences: inout [ElementReference]) {
+    static func stepFirst(newArray: [NestedElement], symbolTable: inout [Int: SymbolTableEntry], newElementReferences: inout [ElementReference]) {
         newArray.forEach { _, element in
             let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
             entry.newCounter.increment(withIndex: 0)
@@ -38,7 +78,7 @@ private extension NestedHeckel {
         }
     }
     
-    static func stepSecond(oldArray: Array<Nested>, symbolTable: inout [Int: SymbolTableEntry], oldElementReferences: inout [ElementReference]) {
+    static func stepSecond(oldArray: [NestedElement], symbolTable: inout [Int: SymbolTableEntry], oldElementReferences: inout [ElementReference]) {
         oldArray.enumerated().forEach { index, nestedElement in
             let entry = symbolTable[nestedElement.element.hashValue] ?? SymbolTableEntry()
             entry.oldCounter.increment(withIndex: index)
@@ -82,8 +122,8 @@ private extension NestedHeckel {
         }
     }
     
-    static func stepSixth(newArray: Array<Nested>, oldArray: Array<Nested>, newElementReferences: [ElementReference], oldElementReferences: [ElementReference]) -> [Difference<T>] {
-        var differences: [Difference<T>] = []
+    static func stepSixth(newArray: [NestedElement], oldArray: [NestedElement], newElementReferences: [ElementReference], oldElementReferences: [ElementReference]) -> [NestableDifference<T>] {
+        var differences: [NestableDifference<T>] = []
         var oldIndexOffsets: [Int: Int] = [:]
         
         var offsetByDelete = 0
@@ -91,7 +131,7 @@ private extension NestedHeckel {
             oldIndexOffsets[oldIndex] = offsetByDelete
             
             guard case .symbolTable = reference else { return }
-            differences.append(.delete(element: oldArray[oldIndex].element, index: oldIndex))
+            differences.append(.delete(element: oldArray[oldIndex].element, referenceIndex: oldArray[oldIndex].referenceIndex))
             offsetByDelete += 1
         }
         
@@ -99,19 +139,13 @@ private extension NestedHeckel {
         newElementReferences.enumerated().forEach { newIndex, reference in
             switch reference {
             case .symbolTable:
-                differences.append(.insert(element: newArray[newIndex].element, index: newIndex))
+                differences.append(.insert(element: newArray[newIndex].element, referenceIndex: newArray[newIndex].referenceIndex))
                 offsetByInsert += 1
                 
             case .theOther(let oldIndex) where oldIndex - oldIndexOffsets[oldIndex]! != newIndex - offsetByInsert:
                 let oldValue = oldArray[oldIndex]
                 let newValue = newArray[newIndex]
-                let oldReferenceIndex = oldValue.referenceIndex
-                let newReferenceIndex = newValue.referenceIndex
-                let isSameSection = oldReferenceIndex.section == newReferenceIndex.section
-                let moveDiff: Difference<T> = isSameSection ?
-                    .move(element: newValue.element, fromIndex: oldIndex, toIndex: newIndex) :
-                    .sectionMove(element: newValue.element, fromIndex: (section: newReferenceIndex.section, index: newReferenceIndex.index), toIndex: (section: oldReferenceIndex.section, index: oldReferenceIndex.index))
-                differences.append(moveDiff)
+                differences.append(.move(element: newValue.element, fromReferenceIndex: oldValue.referenceIndex, toReferenceIndex: newValue.referenceIndex))
                 
             default:
                 break
@@ -149,3 +183,4 @@ private extension NestedHeckel {
         case theOther(at: Int)
     }
 }
+
