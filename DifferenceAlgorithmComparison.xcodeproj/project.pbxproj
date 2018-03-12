@@ -21,6 +21,7 @@
 		8CF98E712033286000EE3096 /* MyersTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF98E702033286000EE3096 /* MyersTest.swift */; };
 		8CF98E742033398100EE3096 /* originalMyers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF98E732033398100EE3096 /* originalMyers.swift */; };
 		CCCD5211CE6C9968A1E8D310 /* Pods_DifferenceAlgorithmComparisonTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B94B832DF79C22777907EF04 /* Pods_DifferenceAlgorithmComparisonTests.framework */; };
+		FABB8F932054CF5500956C11 /* WuTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABB8F922054CF5500956C11 /* WuTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		9C4CEF1502477842CD0E679D /* Pods-DifferenceAlgorithmComparisonTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DifferenceAlgorithmComparisonTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DifferenceAlgorithmComparisonTests/Pods-DifferenceAlgorithmComparisonTests.release.xcconfig"; sourceTree = "<group>"; };
 		B94B832DF79C22777907EF04 /* Pods_DifferenceAlgorithmComparisonTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DifferenceAlgorithmComparisonTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5ACEFB3D0998062611E351E /* Pods-DifferenceAlgorithmComparison.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DifferenceAlgorithmComparison.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DifferenceAlgorithmComparison/Pods-DifferenceAlgorithmComparison.debug.xcconfig"; sourceTree = "<group>"; };
+		FABB8F922054CF5500956C11 /* WuTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WuTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +131,7 @@
 				8C9CCD31201202C60055DEFE /* HeckelTest.swift */,
 				8C9CCD22201033480055DEFE /* Info.plist */,
 				8CF98E702033286000EE3096 /* MyersTest.swift */,
+				FABB8F922054CF5500956C11 /* WuTest.swift */,
 				8C0C117620345D84003AADCA /* Utility.swift */,
 			);
 			path = DifferenceAlgorithmComparisonTests;
@@ -372,6 +375,7 @@
 				8CF98E712033286000EE3096 /* MyersTest.swift in Sources */,
 				8C9CCD32201202C60055DEFE /* HeckelTest.swift in Sources */,
 				8C0C117720345D84003AADCA /* Utility.swift in Sources */,
+				FABB8F932054CF5500956C11 /* WuTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
