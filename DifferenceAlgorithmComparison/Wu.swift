@@ -107,33 +107,34 @@ private extension Wu {
         }
         
         for p in 0...fromCount {
-            let lowerRange = -p...delta - 1
-            
-            for k in lowerRange {
-                let index = k + fromCount
-                var fromVertice = Vertice.vertice(x: 0, y: 0)
-                var toVertice = Vertice.vertice(x: fromCount, y: toCount)
-                var script = Script.sourceScript
-                var _y = 0
-                
-                // moving bottom, means delete script
-                // thinking about it on Wu's EditGraph, not myers'
-                if p == 0 && k == 0 {}
-                else if furthestReaching[index - 1] + 1 < furthestReaching[index + 1] {
-                    _y = furthestReaching[index + 1]
-                    fromVertice = .vertice(x: _y - k, y: _y)
-                    toVertice = .vertice(x: _y - k + 1, y: _y)
-                    script = .delete(at: _y - k)
-                } else {
-                    _y = furthestReaching[index - 1] + 1
-                    fromVertice = .vertice(x: _y - k, y: _y - 1)
-                    toVertice = .vertice(x: _y - k, y: _y)
-                    script = Script.insert(from: _y, to: _y - k)
-                }
-                
-                furthestReaching[index] = snake(k, _y)
-                if p != 0 || k != 0 {
-                    path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 100))
+            if delta > 0 {
+                let lowerRange = -p...delta - 1
+                for k in lowerRange {
+                    let index = k + fromCount
+                    var fromVertice = Vertice.vertice(x: 0, y: 0)
+                    var toVertice = Vertice.vertice(x: fromCount, y: toCount)
+                    var script = Script.sourceScript
+                    var _y = 0
+                    
+                    // moving bottom, means delete script
+                    // thinking about it on Wu's EditGraph, not myers'
+                    if p == 0 && k == 0 {}
+                    else if furthestReaching[index - 1] + 1 < furthestReaching[index + 1] {
+                        _y = furthestReaching[index + 1]
+                        fromVertice = .vertice(x: _y - k, y: _y)
+                        toVertice = .vertice(x: _y - k + 1, y: _y)
+                        script = .delete(at: _y - k)
+                    } else {
+                        _y = furthestReaching[index - 1] + 1
+                        fromVertice = .vertice(x: _y - k, y: _y - 1)
+                        toVertice = .vertice(x: _y - k, y: _y)
+                        script = Script.insert(from: _y - 1, to: _y - k - 1)
+                    }
+                    
+                    furthestReaching[index] = snake(k, _y)
+                    if p != 0 || k != 0 {
+                        path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: furthestReaching[index] - _y))
+                    }
                 }
             }
             
@@ -159,7 +160,7 @@ private extension Wu {
                         toVertice = .vertice(x: _y - k, y: _y)
                         script = Script.insert(from: _y, to: _y - k)
                     }
-                    //let m = max(furthestReaching[index - 1] + 1, furthestReaching[index + 1])
+                    
                     furthestReaching[index] = snake(k, _y)
                     path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 0))
                 }
@@ -180,17 +181,14 @@ private extension Wu {
                 _y = furthestReaching[deltaIndex - 1] + 1
                 fromVertice = .vertice(x: _y - delta, y: _y - 1)
                 toVertice = .vertice(x: _y - delta, y: _y)
-                script = Script.insert(from: _y, to: _y - delta)
+                script = Script.insert(from: _y - 1, to: _y - delta - 1)
             }
             
             furthestReaching[deltaIndex] = snake(delta, _y)
-            path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 100))
-
+            path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: furthestReaching[deltaIndex] - _y))
             
             if furthestReaching[deltaIndex] == toCount {
-                print(2 * p + delta)
-                print(path)
-                return []
+                return path
             }
         }
         

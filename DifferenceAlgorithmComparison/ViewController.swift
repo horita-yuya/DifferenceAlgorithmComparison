@@ -76,7 +76,7 @@ private extension ViewController {
         //print(Myers.diff(from:k, to: k))
         
         let a = [1, 2, 3, 4, 5]
-        let b = [1, 2, 3, 4, 5, 6, 7]
+        let b = [1, 2, 3, 4, 5, 6]
         print(Myers.diff(from: a, to: b))
         print(Wu.diff(from: a, to: b))
         //print(originalMyers.diff(from: [], to: []))
