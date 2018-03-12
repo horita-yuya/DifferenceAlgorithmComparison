@@ -29,9 +29,20 @@ private extension ViewController {
         
         //let listA: [Int] = [10, 2, 3, 5, 5]
         //let listB: [Int] = [1, 2, 7, 3, 5, 5, 6]
-        let listA: [Int] = [1, 2, 3, 4, 5, 6]
-        let listB: [Int] = [6, 1, 2, 3, 4, 5]
-        print(Heckel.diff(from: listA, to: listB))
+        //let listA: [Int] = [1, 2, 3, 4, 5, 6]
+        //let listB: [Int] = [6, 1, 2, 3, 4, 5]
+        //print(Heckel.diff(from: listA, to: listB))
+        
+        //let a = [1, 1, 3, 2, 5]
+        //let b = [1, 6, 1, 3, 5]
+        //print(originalHeckel.diff(from: a, to: b))
+        
+        //let a = [[1, 2], [3, 4]]
+        //let b = [[1, 3], [2, 4]]
+        
+        let nestArray11 = [[1, 2, 5], []]
+        let nestArray22 = [[], [1, 2, 5]]
+        print(NestedHeckel.diff(from: nestArray11, to: nestArray22))
     }
     
     func doTest() {
@@ -75,10 +86,18 @@ private extension ViewController {
         let k: [Int] = []
         //print(Myers.diff(from:k, to: k))
         
-        let a = [1, 2, 3, 4, 5]
-        let b = [1, 2, 3, 4, 5, 6]
-        print(Myers.diff(from: a, to: b))
-        print(Wu.diff(from: a, to: b))
+        //let a = [1, 2, 3, 4, 5]
+        //let b = [1, 2, 3, 4, 5, 6]
+        //let a = [0]
+        //let b = [1]
+        //let a = [1, 1, 3, 2, 5]
+        //let b = [1, 6, 1, 3, 5]
+        //let a = [1, 2]
+        //let b = [1]
+        let a = "1362"
+        let b = "31526"
+        //print(Myers.diff(from: a, to: b))
+        print(Wu.diff(from: .init(a), to: .init(b)))
         //print(originalMyers.diff(from: [], to: []))
         //print(Myers.diff(from: .init("1362"), to: .init("31526")).reduce("") { $0 + $1.description })
         //print(originalMyers.diff(from: .init("kitten"), to: .init("sitting")))

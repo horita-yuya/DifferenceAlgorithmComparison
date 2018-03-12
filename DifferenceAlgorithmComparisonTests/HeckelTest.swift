@@ -90,17 +90,27 @@ final class HeckelSpec: QuickSpec {
                         .move(element: 7, fromIndex: 6, toIndex: 9)
                         ]
                     )
-                    /*  DEBUG NOW
-                    (from: [1, 2, 3, 4, 5, 6, 7], to: [1, 2, 6, 7, 3, 4, 5], expect: [
-                        .move(element: 3, fromIndex: 2, toIndex: 4),
-                        .move(element: 4, fromIndex: 3, toIndex: 5),
-                        .move(element: 5, fromIndex: 4, toIndex: 6)
-                        ]
-                    )*/
                 ]
                 
                 for pattern in patterns {
                     expect(Heckel.diff(from: pattern.from, to: pattern.to)) == pattern.expect
+                }
+                
+                for pattern in patterns {
+                    let nestedDiff = NestedHeckel.diff(from: [pattern.from], to: [pattern.to])
+                    let flatDiff = nestedDiff.map { diff -> Difference<Int> in
+                        switch diff {
+                        case let .delete(element, referenceIndex):
+                            return Difference.delete(element: element, index: referenceIndex.index)
+                            
+                        case let .insert(element, referenceIndex):
+                            return Difference.insert(element: element, index: referenceIndex.index)
+                            
+                        case let .move(element, fromReferenceIndex, toReferenceIndex):
+                            return Difference.move(element: element, fromIndex: fromReferenceIndex.index, toIndex: toReferenceIndex.index)
+                        }
+                    }
+                    expect(flatDiff) == originalHeckel.diff(from: pattern.from, to: pattern.to)
                 }
             }
         }
