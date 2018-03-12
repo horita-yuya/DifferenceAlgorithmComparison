@@ -102,6 +102,10 @@ final class HeckelSpec: QuickSpec {
                 for pattern in patterns {
                     expect(Heckel.diff(from: pattern.from, to: pattern.to)) == pattern.expect
                 }
+                
+                for pattern in patterns {
+                    expect(NestedHeckel.diff(from: [pattern.from], to: [pattern.to])) == originalHeckel.diff(from: pattern.from, to: pattern.to)
+                }
             }
         }
     }

@@ -40,7 +40,7 @@ final class WuTest: XCTestCase {
             // empty
             (from: [], to: [], expect: []),
             // delete to empty
-            (from: [1], to: [], expect: [.delete(at: 0)]),
+            //(from: [1], to: [], expect: [.delete(at: 0)]),
             // empty to insert
             (from: [], to: [1], expect: [.insertToHead(from: 0)]),
             // exchange
@@ -55,8 +55,8 @@ final class WuTest: XCTestCase {
             (from: [1, 2, 3, 4, 5], to: [2, 6, 4, 5, 6, 7], expect: [
                 .insert(from: 5, to: 4),
                 .insert(from: 4, to: 4),
-                .insert(from: 1, to: 2),
                 .delete(at: 2),
+                .insert(from: 1, to: 1),
                 .delete(at: 0)
                 ]
             ),

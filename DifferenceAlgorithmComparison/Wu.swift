@@ -119,16 +119,16 @@ private extension Wu {
                     // moving bottom, means delete script
                     // thinking about it on Wu's EditGraph, not myers'
                     if p == 0 && k == 0 {}
-                    else if furthestReaching[index - 1] + 1 < furthestReaching[index + 1] {
+                    else if furthestReaching[index - 1] + 1 <= furthestReaching[index + 1] {
                         _y = furthestReaching[index + 1]
-                        fromVertice = .vertice(x: _y - k, y: _y)
-                        toVertice = .vertice(x: _y - k + 1, y: _y)
-                        script = .delete(at: _y - k)
+                        fromVertice = .vertice(x: _y - k - 1, y: _y)
+                        toVertice = .vertice(x: _y - k, y: _y)
+                        script = .delete(at: _y - k - 1)
                     } else {
                         _y = furthestReaching[index - 1] + 1
                         fromVertice = .vertice(x: _y - k, y: _y - 1)
                         toVertice = .vertice(x: _y - k, y: _y)
-                        script = Script.insert(from: _y - 1, to: _y - k - 1)
+                        script = .insert(from: _y - 1, to: _y - k)
                     }
                     
                     furthestReaching[index] = snake(k, _y)
@@ -149,7 +149,7 @@ private extension Wu {
                     
                     // moving bottom, means delete script
                     // thinking about it on Wu's EditGraph, not myers'
-                    if furthestReaching[index - 1] + 1 < furthestReaching[index + 1] {
+                    if furthestReaching[index - 1] + 1 <= furthestReaching[index + 1] {
                         _y = furthestReaching[index + 1]
                         fromVertice = .vertice(x: _y - k, y: _y)
                         toVertice = .vertice(x: _y - k + 1, y: _y)
@@ -158,11 +158,11 @@ private extension Wu {
                         _y = furthestReaching[index - 1] + 1
                         fromVertice = .vertice(x: _y - k, y: _y - 1)
                         toVertice = .vertice(x: _y - k, y: _y)
-                        script = Script.insert(from: _y, to: _y - k)
+                        script = .insert(from: _y - 1, to: _y - k)
                     }
                     
                     furthestReaching[index] = snake(k, _y)
-                    path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: 0))
+                    path.append((P: p, from: fromVertice, to: toVertice, script: script, snakeCount: furthestReaching[index] - _y))
                 }
             }
             
@@ -172,16 +172,16 @@ private extension Wu {
             var script = Script.sourceScript
             let _y: Int
             
-            if furthestReaching[deltaIndex - 1] + 1 < furthestReaching[deltaIndex + 1] {
+            if furthestReaching[deltaIndex - 1] + 1 <= furthestReaching[deltaIndex + 1] {
                 _y = furthestReaching[deltaIndex + 1]
-                fromVertice = .vertice(x: _y - delta, y: _y)
-                toVertice = .vertice(x: _y - delta + 1, y: _y)
-                script = .delete(at: _y - delta)
+                fromVertice = .vertice(x: _y - delta - 1, y: _y)
+                toVertice = .vertice(x: _y - delta, y: _y)
+                script = .delete(at: _y - delta - 1)
             } else {
                 _y = furthestReaching[deltaIndex - 1] + 1
                 fromVertice = .vertice(x: _y - delta, y: _y - 1)
                 toVertice = .vertice(x: _y - delta, y: _y)
-                script = Script.insert(from: _y - 1, to: _y - delta - 1)
+                script = _y == 0 ? .insertToHead(from: _y - 1) : .insert(from: _y - 1, to: _y - delta)
             }
             
             furthestReaching[deltaIndex] = snake(delta, _y)
@@ -195,12 +195,7 @@ private extension Wu {
         return []
     }
 }
-/*
-x = furthest[index - 1] + 1
-fromVertice = .vertice(x: x - 1, y: x - k)
-toVertice = .vertice(x: x, y: x - k)
-script = .delete(at: x - 1)
-*/
+
 private extension Wu {
     enum Vertice: Equatable {
         case vertice(x: Int, y: Int)
