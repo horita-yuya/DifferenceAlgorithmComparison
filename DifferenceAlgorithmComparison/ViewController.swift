@@ -37,9 +37,12 @@ private extension ViewController {
         //let b = [1, 6, 1, 3, 5]
         //print(originalHeckel.diff(from: a, to: b))
         
-        let a = [[1, 2], [3, 4]]
-        let b = [[1, 3], [2, 4]]
-        print(NestedHeckel.diff(from: a, to: b))
+        //let a = [[1, 2], [3, 4]]
+        //let b = [[1, 3], [2, 4]]
+        
+        let nestArray11 = [[1, 2, 5], []]
+        let nestArray22 = [[], [1, 2, 5]]
+        print(NestedHeckel.diff(from: nestArray11, to: nestArray22))
     }
     
     func doTest() {

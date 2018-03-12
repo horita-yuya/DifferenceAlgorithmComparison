@@ -12,7 +12,6 @@ enum Difference<E: Equatable>: Equatable {
     case delete(element: E, index: Int)
     case insert(element: E, index: Int)
     case move(element: E, fromIndex: Int, toIndex: Int)
-    case sectionMove(element: E, fromIndex: (section: Int, index: Int), toIndex: (section: Int, index: Int))
     
     static func ==(lhs: Difference<E>, rhs: Difference<E>) -> Bool {
         switch (lhs, rhs) {
@@ -24,9 +23,6 @@ enum Difference<E: Equatable>: Equatable {
             
         case let (.move(le, lfi, lti), .move(re, rfi, rti)):
             return le == re && lfi == rfi && lti == rti
-            
-        case let (.sectionMove(le, lfi, lti), .sectionMove(re, rfi, rti)):
-            return le == re && lfi.section == rfi.section && lfi.index == rfi.index && lti.section == rti.section && lti.index == rti.index
             
         default:
             return false

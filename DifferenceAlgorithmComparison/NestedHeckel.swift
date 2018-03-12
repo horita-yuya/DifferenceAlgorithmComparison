@@ -142,7 +142,7 @@ private extension NestedHeckel {
                 differences.append(.insert(element: newArray[newIndex].element, referenceIndex: newArray[newIndex].referenceIndex))
                 offsetByInsert += 1
                 
-            case .theOther(let oldIndex) where oldIndex - oldIndexOffsets[oldIndex]! != newIndex - offsetByInsert:
+            case .theOther(let oldIndex) where oldIndex - oldIndexOffsets[oldIndex]! != newIndex - offsetByInsert || oldArray[oldIndex].referenceIndex.section != newArray[newIndex].referenceIndex.section:
                 let oldValue = oldArray[oldIndex]
                 let newValue = newArray[newIndex]
                 differences.append(.move(element: newValue.element, fromReferenceIndex: oldValue.referenceIndex, toReferenceIndex: newValue.referenceIndex))
