@@ -6,6 +6,7 @@ target 'DifferenceAlgorithmComparison' do
   use_frameworks!
 
   # Pods for DifferenceAlgorithmComparison
+  pod 'RxDataSources'
 
   target 'DifferenceAlgorithmComparisonTests' do
     inherit! :search_paths
