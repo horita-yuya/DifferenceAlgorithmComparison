@@ -1,26 +1,43 @@
 #  Myers Difference Algorithm
 
-Myers Difference Algorithm is the algorithm to find a longest common subsequence or shortest edit scripts (LCS/SES dual probrem) of two sequences by a simple O(ND) time, where N is the sum of the lengths of the two sequences. Common subsequence is the sequence of elements that appear in the same order in both sequences. Edit script will be discussed below.
+Myers Difference Algorithm is an algorithm that finds a longest common subsequence(LCS) or shortest edit scripts(SES) of two sequences. MDA can accomplish this in O(ND) time, where N is the sum of the lengths of the two sequences. The common subsequence of two sequences is the sequence of elements that appear in the same order in both sequences.
 
-For example, assuming that sequence `A = ["1", "2", "3"]` and sequence `B = ["2", "3", "4"]`, `["2"], ["2", "3"]` are common sequences. Furthermore, the latter `["2", "3"]` is the longest common subsequence.  But `["1", "2"], ["3", "2"]` are not. Because, `["1", "2"]` contains `"1"` that is not included in `B`, `["3", "2"]` has elements are included in both, but the appearing order is not correct.
+For example, let's assume you have two arrays:
+
+```
+A = [1, 2, 3]
+B = [2, 3, 4]
+```
+
+The common subsequences of these two arrays are `[2]`, and `[2,3]`. The longest common sequence in this case is `[2,3]`.
 
 ## Finding the length of the Longest Common Subsequence with Myers Algorithm on Edit Graph
 
 ### Edit Graph
 
-Myers Algorithm uses Edit Graph for solving LCS/SES problem. Edit Graph is the graph like below.
+MDA uses an **Edit Graph** to solve the LCS/SES problem. Below is a illustration depicting an edit graph:
 
 <img src='Images/EditGraph.png' height="400">
 
-Here, we think about the length of the LCS of sequences `X = [A, B, C, A, B, B, A]`, `Y = [C, B, A, B, A, C]`.
+The x-axis at the top of the graph represents one of the sequences, `X`. The y-axis at the left side of the graph represents the other sequence, `Y`. Hence, the two sequences in question is the following:
 
-In Myers Algorithm, edit graph are prepared by
+```
+X = [A, B, C, A, B, B, A]
+Y = [C, B, A, B, A, C]
+```
+
+MDA generates the edit graph through the following steps:
 
 1. Line the element of sequence `X` on the x axis. And do for `Y` on the y axis.
 2. Make grid and vertex at each point in the grid (x, y), `x in [0, N] and y in [0, M]`. `N` is the length of sequence `X`, `M` is of `Y`
-3. Line for `x - y = k`, this line called k-line. Black dot line is this and pink number is the value of k.
-3. Check the points `(i, j)`, where `X[i] = Y[j]`, called match point, light green one.
-4. Connect vertex `(i - 1, j - 1)` and vertex `(i, j)`, where `(i, j)` is match point, then diagonal edge appears.
+3. Line for `x - y = k`, this line called k-line.
+4. Check the points `(i, j)`, where `X[i] = Y[j]`, called match point.
+5. Connect vertex `(i - 1, j - 1)` and vertex `(i, j)`, where `(i, j)` is match point, then diagonal edge appears.
+
+Each elements on the figure shows that,
+- `Red number and dotted lines`: The red number is the value of k and dotted lines are k-line.
+- `Green dots: The match points`, which is the point `(i, j)` where `X[i] == Y[j]`
+- `Blue line`: The shortest path from source to sink, which is the path we are going to find finally.
 
 > **Note:** Here, the sequences' start index is 1 not 0, so `X[1] = A`, `Y[1] = C`
 
@@ -63,14 +80,14 @@ Searching loop outline will be below.
 
 ```swift
 for D in 0...N + M {
-    for k in stride(from: -D, through: D, by: 2) {
-        //Find the end point of the furthest reaching D-path in k-line.
-        if furthestReachingX == N && furthestReachingY == M {
-            // The D-path is the shortest path
-            // D is the length of Shortest Edit Script
-            return
-        }
-    }
+for k in stride(from: -D, through: D, by: 2) {
+//Find the end point of the furthest reaching D-path in k-line.
+if furthestReachingX == N && furthestReachingY == M {
+// The D-path is the shortest path
+// D is the length of Shortest Edit Script
+return
+}
+}
 }
 ```
 
@@ -87,61 +104,61 @@ thanks for these, the number of calculation become less.
 
 ```swift
 public struct MyersDifferenceAlgorithm<E: Equatable> {
-    public static func calculateShortestEditDistance(from fromArray: Array<E>, to toArray: Array<E>) -> Int {
-        let fromCount = fromArray.count
-        let toCount = toArray.count
-        let totalCount = toCount + fromCount
-        var furthestReaching = Array(repeating: 0, count: 2 * totalCount + 1)
+public static func calculateShortestEditDistance(from fromArray: Array<E>, to toArray: Array<E>) -> Int {
+let fromCount = fromArray.count
+let toCount = toArray.count
+let totalCount = toCount + fromCount
+var furthestReaching = Array(repeating: 0, count: 2 * totalCount + 1)
 
-        let isReachedAtSink: (Int, Int) -> Bool = { x, y in
-            return x == fromCount && y == toCount
-        }
+let isReachedAtSink: (Int, Int) -> Bool = { x, y in
+return x == fromCount && y == toCount
+}
 
-        let snake: (Int, Int, Int) -> Int = { x, D, k in
-            var _x = x
-            while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
-                _x += 1
-            }
-            return _x
-        }
+let snake: (Int, Int, Int) -> Int = { x, D, k in
+var _x = x
+while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
+_x += 1
+}
+return _x
+}
 
-        for D in 0...totalCount {
-            for k in stride(from: -D, through: D, by: 2) {
-                let index = k + totalCount
-            
-                // (x, D, k) => the x position on the k_line where the number of scripts is D
-                // scripts means insertion or deletion
-                var x = 0
-                if D == 0 { }
-                    // k == -D, D will be the boundary k_line
-                    // when k == -D, moving right on the Edit Graph(is delete script) from k - 1_line where D - 1 is unavailable.
-                    // when k == D, moving bottom on the Edit Graph(is insert script) from k + 1_line where D - 1 is unavailable.
-                    // furthestReaching x position has higher calculating priority. (x, D - 1, k - 1), (x, D - 1, k + 1)
-                else if k == -D || k != D && furthestReaching[index - 1] < furthestReaching[index + 1] {
-                    // Getting initial x position
-                    // ,using the furthestReaching X position on the k + 1_line where D - 1
-                    // ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
-                    // this moving bottom on the edit graph is compatible with insert script
-                    x = furthestReaching[index + 1]
-                } else {
-                    // Getting initial x position
-                    // ,using the futrhest X position on the k - 1_line where D - 1
-                    // ,meaning get (x, D, k) by (x, D - 1, k - 1) + moving right + snake
-                    // this moving right on the edit graph is compatible with delete script
-                    x = furthestReaching[index - 1] + 1
-                }
-                
-                // snake
-                // diagonal moving can be performed with 0 cost.
-                // `same` script is needed ?
-                let _x = snake(x, D, k)
-                
-                if isReachedAtSink(_x, _x - k) { return D }
-                furthestReaching[index] = _x
-            }
-        }
+for D in 0...totalCount {
+for k in stride(from: -D, through: D, by: 2) {
+let index = k + totalCount
 
-        fatalError("Never comes here")
-    }
+// (x, D, k) => the x position on the k_line where the number of scripts is D
+// scripts means insertion or deletion
+var x = 0
+if D == 0 { }
+// k == -D, D will be the boundary k_line
+// when k == -D, moving right on the Edit Graph(is delete script) from k - 1_line where D - 1 is unavailable.
+// when k == D, moving bottom on the Edit Graph(is insert script) from k + 1_line where D - 1 is unavailable.
+// furthestReaching x position has higher calculating priority. (x, D - 1, k - 1), (x, D - 1, k + 1)
+else if k == -D || k != D && furthestReaching[index - 1] < furthestReaching[index + 1] {
+// Getting initial x position
+// ,using the furthestReaching X position on the k + 1_line where D - 1
+// ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
+// this moving bottom on the edit graph is compatible with insert script
+x = furthestReaching[index + 1]
+} else {
+// Getting initial x position
+// ,using the futrhest X position on the k - 1_line where D - 1
+// ,meaning get (x, D, k) by (x, D - 1, k - 1) + moving right + snake
+// this moving right on the edit graph is compatible with delete script
+x = furthestReaching[index - 1] + 1
+}
+
+// snake
+// diagonal moving can be performed with 0 cost.
+// `same` script is needed ?
+let _x = snake(x, D, k)
+
+if isReachedAtSink(_x, _x - k) { return D }
+furthestReaching[index] = _x
+}
+}
+
+fatalError("Never comes here")
+}
 }
 ```
