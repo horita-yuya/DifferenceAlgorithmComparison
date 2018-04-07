@@ -2,7 +2,7 @@
 //  NestedHeckel.swift
 //  DifferenceAlgorithmComparison
 //
-//  Created by 堀田 有哉 on 2018/03/12.
+//  Created by Yuya Horita on 2018/03/12.
 //  Copyright © 2018年 yuyahorita. All rights reserved.
 //
 
@@ -99,6 +99,17 @@ private extension NestedHeckel {
     }
     
     static func stepFourth(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
+        let oldCount = oldElementReferences.count
+        let newCount = newElementReferences.count
+        if oldCount > 0, newCount > 0,
+            case let .symbolTable(entry: newEntry) = newElementReferences[0],
+            case let .symbolTable(entry: oldEntry) = oldElementReferences[0],
+            newEntry === oldEntry {
+            
+            newElementReferences[0] = .theOther(at: 0)
+            oldElementReferences[0] = .theOther(at: 0)
+        }
+        
         newElementReferences.enumerated().forEach { newIndex, _ in
             guard case let .theOther(at: oldIndex) = newElementReferences[newIndex], oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
                 case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
@@ -111,6 +122,17 @@ private extension NestedHeckel {
     }
     
     static func stepFifth(newElementReferences: inout [ElementReference], oldElementReferences: inout [ElementReference]) {
+        let oldCount = oldElementReferences.count
+        let newCount = newElementReferences.count
+        if oldCount > 0, newCount > 0,
+            case let .symbolTable(entry: newEntry) = newElementReferences[newCount - 1],
+            case let .symbolTable(entry: oldEntry) = oldElementReferences[oldCount - 1],
+            newEntry === oldEntry {
+            
+            newElementReferences[newCount - 1] = .theOther(at: oldCount - 1)
+            oldElementReferences[oldCount - 1] = .theOther(at: newCount - 1)
+        }
+        
         newElementReferences.enumerated().reversed().forEach { newIndex, _ in
             guard case let .theOther(at: oldIndex) = newElementReferences[newIndex], oldIndex > 0, newIndex > 0,
                 case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],

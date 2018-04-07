@@ -2,7 +2,7 @@
 //  MyersTest.swift
 //  DifferenceAlgorithmComparisonTests
 //
-//  Created by 堀田 有哉 on 2018/02/13.
+//  Created by Yuya Horita on 2018/02/13.
 //  Copyright © 2018年 yuyahorita. All rights reserved.
 //
 @testable import DifferenceAlgorithmComparison
@@ -10,7 +10,7 @@
 import XCTest
 
 final class MyersTest: XCTestCase {
-    func testSameAsDiffer() {
+    func testString() {
         let expectations = [
             ("kitten", "sitting", "I(6, 5)I(4, 4)D(4)I(0, 0)D(0)"),
             ("🐩itt🍨ng", "kitten", "D(6)I(4, 4)D(4)I(0, 0)D(0)"),
@@ -71,20 +71,4 @@ final class MyersTest: XCTestCase {
             XCTAssertTrue(expect == Myers.diff(from: old, to: new))
         }
     }
-    
-    let (old, new) = generate(count: 20000, removeRange: 0..<0, addRange: 19999..<21000)
-    
-    func testPerformanceOriginalModel() {
-        measure {
-            _ = originalMyers.diff(from: old, to: new)
-        }
-    }
-    
-    func testPerformanceSnakeCountModel() {
-        measure {
-            _ = Myers.diff(from: old, to: new)
-        }
-    }
-    
-    
 }

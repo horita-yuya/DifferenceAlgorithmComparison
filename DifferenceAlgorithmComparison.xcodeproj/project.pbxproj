@@ -7,21 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6017EA9AC0C7EA5130DF2E9B /* Pods_DifferenceAlgorithmComparison.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BC37E401662F232E3FB8BE1 /* Pods_DifferenceAlgorithmComparison.framework */; };
-		8C0C117720345D84003AADCA /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0C117620345D84003AADCA /* Utility.swift */; };
-		8C0C117920347A3A003AADCA /* oiginalHeckel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C0C117820347A3A003AADCA /* oiginalHeckel.swift */; };
+		8C54D92B20789B0D00964B30 /* Heckel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C54D92720789B0D00964B30 /* Heckel.swift */; };
+		8C54D92C20789B0D00964B30 /* Myers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C54D92820789B0D00964B30 /* Myers.swift */; };
+		8C54D92D20789B0D00964B30 /* NestedHeckel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C54D92920789B0D00964B30 /* NestedHeckel.swift */; };
+		8C54D92E20789B0D00964B30 /* Wu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C54D92A20789B0D00964B30 /* Wu.swift */; };
 		8C9CCD0C201033480055DEFE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD0B201033480055DEFE /* AppDelegate.swift */; };
 		8C9CCD0E201033480055DEFE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD0D201033480055DEFE /* ViewController.swift */; };
 		8C9CCD11201033480055DEFE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C9CCD0F201033480055DEFE /* Main.storyboard */; };
 		8C9CCD2C2010336D0055DEFE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 8C9CCD2B2010336D0055DEFE /* README.md */; };
-		8C9CCD2E201041A00055DEFE /* Heckel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD2D201041A00055DEFE /* Heckel.swift */; };
-		8C9CCD30201105800055DEFE /* Myers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD2F201105800055DEFE /* Myers.swift */; };
 		8C9CCD32201202C60055DEFE /* HeckelTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9CCD31201202C60055DEFE /* HeckelTest.swift */; };
-		8CB471E42038358B00368A0F /* Wu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CB471E32038358B00368A0F /* Wu.swift */; };
-		8CC968F620564F8000FD1E57 /* NestedHeckel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC968F520564F8000FD1E57 /* NestedHeckel.swift */; };
 		8CF98E712033286000EE3096 /* MyersTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF98E702033286000EE3096 /* MyersTest.swift */; };
-		8CF98E742033398100EE3096 /* originalMyers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CF98E732033398100EE3096 /* originalMyers.swift */; };
-		CCCD5211CE6C9968A1E8D310 /* Pods_DifferenceAlgorithmComparisonTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B94B832DF79C22777907EF04 /* Pods_DifferenceAlgorithmComparisonTests.framework */; };
 		FABB8F932054CF5500956C11 /* WuTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABB8F922054CF5500956C11 /* WuTest.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,11 +31,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		476AA946BD74EABD811B07E8 /* Pods-DifferenceAlgorithmComparisonTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DifferenceAlgorithmComparisonTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DifferenceAlgorithmComparisonTests/Pods-DifferenceAlgorithmComparisonTests.debug.xcconfig"; sourceTree = "<group>"; };
-		6BC37E401662F232E3FB8BE1 /* Pods_DifferenceAlgorithmComparison.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DifferenceAlgorithmComparison.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7886F96BA3B748DE4B223EC3 /* Pods-DifferenceAlgorithmComparison.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DifferenceAlgorithmComparison.release.xcconfig"; path = "Pods/Target Support Files/Pods-DifferenceAlgorithmComparison/Pods-DifferenceAlgorithmComparison.release.xcconfig"; sourceTree = "<group>"; };
-		8C0C117620345D84003AADCA /* Utility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
-		8C0C117820347A3A003AADCA /* oiginalHeckel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = oiginalHeckel.swift; sourceTree = "<group>"; };
+		8C54D92720789B0D00964B30 /* Heckel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heckel.swift; sourceTree = "<group>"; };
+		8C54D92820789B0D00964B30 /* Myers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Myers.swift; sourceTree = "<group>"; };
+		8C54D92920789B0D00964B30 /* NestedHeckel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NestedHeckel.swift; sourceTree = "<group>"; };
+		8C54D92A20789B0D00964B30 /* Wu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Wu.swift; sourceTree = "<group>"; };
 		8C9CCD08201033480055DEFE /* DifferenceAlgorithmComparison.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DifferenceAlgorithmComparison.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C9CCD0B201033480055DEFE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8C9CCD0D201033480055DEFE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -49,16 +43,8 @@
 		8C9CCD1C201033480055DEFE /* DifferenceAlgorithmComparisonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DifferenceAlgorithmComparisonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C9CCD22201033480055DEFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8C9CCD2B2010336D0055DEFE /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		8C9CCD2D201041A00055DEFE /* Heckel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heckel.swift; sourceTree = "<group>"; };
-		8C9CCD2F201105800055DEFE /* Myers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Myers.swift; sourceTree = "<group>"; };
 		8C9CCD31201202C60055DEFE /* HeckelTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeckelTest.swift; sourceTree = "<group>"; };
-		8CB471E32038358B00368A0F /* Wu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wu.swift; sourceTree = "<group>"; };
-		8CC968F520564F8000FD1E57 /* NestedHeckel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedHeckel.swift; sourceTree = "<group>"; };
 		8CF98E702033286000EE3096 /* MyersTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyersTest.swift; sourceTree = "<group>"; };
-		8CF98E732033398100EE3096 /* originalMyers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = originalMyers.swift; sourceTree = "<group>"; };
-		9C4CEF1502477842CD0E679D /* Pods-DifferenceAlgorithmComparisonTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DifferenceAlgorithmComparisonTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DifferenceAlgorithmComparisonTests/Pods-DifferenceAlgorithmComparisonTests.release.xcconfig"; sourceTree = "<group>"; };
-		B94B832DF79C22777907EF04 /* Pods_DifferenceAlgorithmComparisonTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DifferenceAlgorithmComparisonTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C5ACEFB3D0998062611E351E /* Pods-DifferenceAlgorithmComparison.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DifferenceAlgorithmComparison.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DifferenceAlgorithmComparison/Pods-DifferenceAlgorithmComparison.debug.xcconfig"; sourceTree = "<group>"; };
 		FABB8F922054CF5500956C11 /* WuTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WuTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,7 +53,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6017EA9AC0C7EA5130DF2E9B /* Pods_DifferenceAlgorithmComparison.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,20 +60,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCCD5211CE6C9968A1E8D310 /* Pods_DifferenceAlgorithmComparisonTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		63441CE9A066EAE84216E202 /* Frameworks */ = {
+		8C54D92620789B0D00964B30 /* Algorithm */ = {
 			isa = PBXGroup;
 			children = (
-				6BC37E401662F232E3FB8BE1 /* Pods_DifferenceAlgorithmComparison.framework */,
-				B94B832DF79C22777907EF04 /* Pods_DifferenceAlgorithmComparisonTests.framework */,
+				8C54D92720789B0D00964B30 /* Heckel.swift */,
+				8C54D92820789B0D00964B30 /* Myers.swift */,
+				8C54D92920789B0D00964B30 /* NestedHeckel.swift */,
+				8C54D92A20789B0D00964B30 /* Wu.swift */,
 			);
-			name = Frameworks;
+			path = Algorithm;
 			sourceTree = "<group>";
 		};
 		8C9CCCFF201033480055DEFE = {
@@ -98,8 +84,6 @@
 				8C9CCD0A201033480055DEFE /* DifferenceAlgorithmComparison */,
 				8C9CCD1F201033480055DEFE /* DifferenceAlgorithmComparisonTests */,
 				8C9CCD09201033480055DEFE /* Products */,
-				A1D238F9AB66D4086D09C571 /* Pods */,
-				63441CE9A066EAE84216E202 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -115,15 +99,11 @@
 		8C9CCD0A201033480055DEFE /* DifferenceAlgorithmComparison */ = {
 			isa = PBXGroup;
 			children = (
-				8C9CCD2D201041A00055DEFE /* Heckel.swift */,
+				8C54D92620789B0D00964B30 /* Algorithm */,
 				8C9CCD0B201033480055DEFE /* AppDelegate.swift */,
 				8C9CCD0D201033480055DEFE /* ViewController.swift */,
 				8C9CCD0F201033480055DEFE /* Main.storyboard */,
 				8C9CCD17201033480055DEFE /* Info.plist */,
-				8C9CCD2F201105800055DEFE /* Myers.swift */,
-				8CB471E32038358B00368A0F /* Wu.swift */,
-				8CC968F520564F8000FD1E57 /* NestedHeckel.swift */,
-				8CF98E722033397100EE3096 /* Original */,
 			);
 			path = DifferenceAlgorithmComparison;
 			sourceTree = "<group>";
@@ -135,29 +115,8 @@
 				8C9CCD22201033480055DEFE /* Info.plist */,
 				8CF98E702033286000EE3096 /* MyersTest.swift */,
 				FABB8F922054CF5500956C11 /* WuTest.swift */,
-				8C0C117620345D84003AADCA /* Utility.swift */,
 			);
 			path = DifferenceAlgorithmComparisonTests;
-			sourceTree = "<group>";
-		};
-		8CF98E722033397100EE3096 /* Original */ = {
-			isa = PBXGroup;
-			children = (
-				8CF98E732033398100EE3096 /* originalMyers.swift */,
-				8C0C117820347A3A003AADCA /* oiginalHeckel.swift */,
-			);
-			path = Original;
-			sourceTree = "<group>";
-		};
-		A1D238F9AB66D4086D09C571 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				C5ACEFB3D0998062611E351E /* Pods-DifferenceAlgorithmComparison.debug.xcconfig */,
-				7886F96BA3B748DE4B223EC3 /* Pods-DifferenceAlgorithmComparison.release.xcconfig */,
-				476AA946BD74EABD811B07E8 /* Pods-DifferenceAlgorithmComparisonTests.debug.xcconfig */,
-				9C4CEF1502477842CD0E679D /* Pods-DifferenceAlgorithmComparisonTests.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -167,12 +126,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C9CCD25201033480055DEFE /* Build configuration list for PBXNativeTarget "DifferenceAlgorithmComparison" */;
 			buildPhases = (
-				56DAC72BD3685EE3030F540E /* [CP] Check Pods Manifest.lock */,
 				8C9CCD04201033480055DEFE /* Sources */,
 				8C9CCD05201033480055DEFE /* Frameworks */,
 				8C9CCD06201033480055DEFE /* Resources */,
-				643F63E1421265E9B8AE4DF4 /* [CP] Embed Pods Frameworks */,
-				A5A9E2D5CFEDAEA6BE79DBCA /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -187,12 +143,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8C9CCD28201033480055DEFE /* Build configuration list for PBXNativeTarget "DifferenceAlgorithmComparisonTests" */;
 			buildPhases = (
-				2C919E40B411374F72B5FB77 /* [CP] Check Pods Manifest.lock */,
 				8C9CCD18201033480055DEFE /* Sources */,
 				8C9CCD19201033480055DEFE /* Frameworks */,
 				8C9CCD1A201033480055DEFE /* Resources */,
-				B017C6227BAE51DC7D14ED74 /* [CP] Embed Pods Frameworks */,
-				76DD131E008E5CDDFAF950FF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -263,112 +216,17 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		2C919E40B411374F72B5FB77 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		56DAC72BD3685EE3030F540E /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		643F63E1421265E9B8AE4DF4 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DifferenceAlgorithmComparison/Pods-DifferenceAlgorithmComparison-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		76DD131E008E5CDDFAF950FF /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DifferenceAlgorithmComparisonTests/Pods-DifferenceAlgorithmComparisonTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A5A9E2D5CFEDAEA6BE79DBCA /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DifferenceAlgorithmComparison/Pods-DifferenceAlgorithmComparison-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B017C6227BAE51DC7D14ED74 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-DifferenceAlgorithmComparisonTests/Pods-DifferenceAlgorithmComparisonTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		8C9CCD04201033480055DEFE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C54D92D20789B0D00964B30 /* NestedHeckel.swift in Sources */,
 				8C9CCD0E201033480055DEFE /* ViewController.swift in Sources */,
 				8C9CCD0C201033480055DEFE /* AppDelegate.swift in Sources */,
-				8C9CCD30201105800055DEFE /* Myers.swift in Sources */,
-				8C9CCD2E201041A00055DEFE /* Heckel.swift in Sources */,
-				8CC968F620564F8000FD1E57 /* NestedHeckel.swift in Sources */,
-				8CB471E42038358B00368A0F /* Wu.swift in Sources */,
-				8CF98E742033398100EE3096 /* originalMyers.swift in Sources */,
-				8C0C117920347A3A003AADCA /* oiginalHeckel.swift in Sources */,
+				8C54D92C20789B0D00964B30 /* Myers.swift in Sources */,
+				8C54D92B20789B0D00964B30 /* Heckel.swift in Sources */,
+				8C54D92E20789B0D00964B30 /* Wu.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,7 +236,6 @@
 			files = (
 				8CF98E712033286000EE3096 /* MyersTest.swift in Sources */,
 				8C9CCD32201202C60055DEFE /* HeckelTest.swift in Sources */,
-				8C0C117720345D84003AADCA /* Utility.swift in Sources */,
 				FABB8F932054CF5500956C11 /* WuTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -514,7 +371,6 @@
 		};
 		8C9CCD26201033480055DEFE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C5ACEFB3D0998062611E351E /* Pods-DifferenceAlgorithmComparison.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -529,7 +385,6 @@
 		};
 		8C9CCD27201033480055DEFE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7886F96BA3B748DE4B223EC3 /* Pods-DifferenceAlgorithmComparison.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -544,7 +399,6 @@
 		};
 		8C9CCD29201033480055DEFE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 476AA946BD74EABD811B07E8 /* Pods-DifferenceAlgorithmComparisonTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -561,7 +415,6 @@
 		};
 		8C9CCD2A201033480055DEFE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9C4CEF1502477842CD0E679D /* Pods-DifferenceAlgorithmComparisonTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
