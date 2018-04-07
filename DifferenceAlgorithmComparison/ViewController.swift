@@ -7,12 +7,43 @@
 //
 
 import UIKit
+import RxDataSources
+
+enum HogeError: Error {
+    case hoge
+}
+
+struct MySection {
+    var header: String
+    var items: [Item]
+}
+
+extension MySection : AnimatableSectionModelType {
+    typealias Item = Int
+    
+    var identity: String {
+        return header
+    }
+    
+    init(original: MySection, items: [Item]) {
+        self = original
+        self.items = items
+    }
+}
 
 final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         //calculate()
         //doTest()
+        
+        let section1 = [MySection(header: "", items: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])]
+        let section2 = [MySection(header: "", items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0])]
+        let diff = try! Diff.differencesForSectionedView(initialSections: section2, finalSections: section1)
+        print("D Count", diff.first!.deletedItems.count)
+        print("I Count", diff.first!.insertedItems.count)
+        print("M Count", diff.first!.movedItems.count)
+        print("U Count", diff.first!.updatedItems.count)
     }
     
     override func viewWillAppear(_ animated: Bool) {
