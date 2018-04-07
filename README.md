@@ -1,5 +1,4 @@
 # Heckel
-Introduction では配列A, Bとしていましたが、Heckelでは、慣習的にOldとNewの頭文字を使って配列O, 配列Nとします。
 ある配列Oからある配列Nへの差分を取ることを考えましょう。
 
 Heckel Algorithmでは、以下の様に3つのdata structureを考えます。
@@ -8,6 +7,7 @@ Heckel Algorithmでは、以下の様に3つのdata structureを考えます。
 3. new element references
 
 まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素(のハッシュ値)をkey、symbol table entryをvalueとする辞書型のデータです。
+要素をKeyとしますので、同じ要素であれば、同じValueが返ってきます。そのため、symbol tableは、全登場人物を管理するdata structureとなります。
 
 symbol table entryは配列O, N内、**それぞれのkey要素の数(カウンター)**と**key要素の配列O内でのインデックス**を持つ値です。カウンターは配列O, Nそれぞれに対して管理するので2つ必要で、インデックスと合わせると、symbol table entryは3つのプロパティを持つことになります。以下のコードのSymbolTableEntryがそれに該当します。
 
@@ -64,20 +64,20 @@ enum ElementReference {
 
 さて、一度ここまでの登場人物をまとめます。
 - symbol table :
-- 2つの配列O, Nの各要素をkeyとする辞書型データ
-- 配列O, Nで共通
-- symbol table entry: key-valueのvalueを管理
-- その要素がそれぞれの配列に何個含まれてるのか。
-- その要素が古い方の配列O内で何番目のインデックスなのか。
+  - 2つの配列O, Nの各要素をkeyとする辞書型データ
+  - 配列O, Nで共通
+  - symbol table entry: key-valueのvalueを管理
+    - その要素がそれぞれの配列に何個含まれてるのか。
+      - その要素が古い方の配列O内で何番目のインデックスなのか。
 - Old
-- O: 配列 (oldArray)
-- OA: ElementReferenceを管理する配列 (oldElementReferences)
+  - O: 配列 (oldArray)
+  - OA: ElementReferenceを管理する配列 (oldElementReferences)
 - New
-- N: 配列 (newArray)
-- NA: ElementReferenceを管理する配列 (newElementReferences)
+  - N: 配列 (newArray)
+  - NA: ElementReferenceを管理する配列 (newElementReferences)
 
 ()内はswift化した時の変数名とします。
-これ以降、他の登場人物は登場せず、これらを`うまく組み合わせて`行くことで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、`うまく組み合わせる`工夫とこの手順がHeckel Algorithmの核です。
+これ以降、他の登場人物は登場せず、これらを`うまく組み合わせて`行くことで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、その組み合わせ方と手順がHeckel Algorithmの核です。
 
 ## <a name="6steps"> 6-Steps
 
