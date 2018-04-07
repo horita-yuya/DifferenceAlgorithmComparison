@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  DifferenceAlgorithmComparison
 //
-//  Created by 堀田 有哉 on 2018/01/18.
+//  Created by Yuya Horita on 2018/01/18.
 //  Copyright © 2018年 yuyahorita. All rights reserved.
 //
 

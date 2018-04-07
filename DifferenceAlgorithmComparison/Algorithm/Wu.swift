@@ -2,7 +2,7 @@
 //  Wu.swift
 //  DifferenceAlgorithmComparison
 //
-//  Created by 堀田 有哉 on 2018/02/09.
+//  Created by Yuya Horita on 2018/02/09.
 //  Copyright © 2018年 hy. All rights reserved.
 //
 

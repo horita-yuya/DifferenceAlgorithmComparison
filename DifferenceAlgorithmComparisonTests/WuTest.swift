@@ -71,14 +71,4 @@ final class WuTest: XCTestCase {
             XCTAssertTrue(expect == Wu.diff(from: old, to: new))
         }
     }
-    
-    let (old, new) = generate(count: 20000, removeRange: 0..<0, addRange: 19999..<21000)
-    
-    func testPerformanceOriginalModel() {
-        measure { _ = Wu.diff(from: old, to: new) }
-    }
-    
-    func testPerformanceSnakeCountModel() {
-        measure { _ = Wu.diff(from: old, to: new) }
-    }
 }
