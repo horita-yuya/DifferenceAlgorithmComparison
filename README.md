@@ -27,24 +27,24 @@ let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
 var symbolTable: [Int: SymbolTableEntry] = [:]
 
 enum Counter {
-case zero
-case one(index: Int) // OLNO
-case many
+  case zero
+  case one(index: Int) // OLNO
+  case many
 
-mutating func increment(withIndex index: Int) {
-switch self {
-case .zero:
-self = .one(index: index)
+  mutating func increment(withIndex index: Int) {
+    switch self {
+      case .zero:
+        self = .one(index: index)
 
-default:
-self = .many
-}
-}
+        default:
+        self = .many
+      }
+  }
 }
 
 class SymbolTableEntry {
-var oldCounter: Counter
-var newCounter: Counter
+  var oldCounter: Counter
+  var newCounter: Counter
 }
 ```
 `1. symbol table` をまとめると、**配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。**
@@ -57,8 +57,8 @@ var newCounter: Counter
 
 ```swift
 enum ElementReference {
-case symbolTable(entry: SymbolTableEntry)
-case theOther(index: Int)
+  case symbolTable(entry: SymbolTableEntry)
+  case theOther(index: Int)
 }
 ```
 
@@ -93,10 +93,10 @@ case theOther(index: Int)
 Step-1は比較前の準備と言ったところです。
 ```swift
 newArray.forEach { element in
-let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
-entry.newCounter.increment(withIndex: 0)
-newElementReferences.append(.symbolTable(entry: entry))
-symbolTable[element.hashValue] = entry
+  let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
+  entry.newCounter.increment(withIndex: 0)
+  newElementReferences.append(.symbolTable(entry: entry))
+  symbolTable[element.hashValue] = entry
 }
 ```
 ここで、withIndex: 0としているのは、SymbolTableEntryが管理するインデックスは、配列Oに対して管理すれば十分なので配列Nに対しては0を代入しています。
@@ -106,10 +106,10 @@ symbolTable[element.hashValue] = entry
 Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし、Oldの場合、SymbolTableEntry.indicesInOldの管理も必要でしたね。
 ```swift
 oldArray.enumerated().forEach { index, element
-let entry = symbolTable[element.hashValue] ?? TableEntry()
-entry.oldCounter.increment(withIndex: index)
-oldElementReferences.append(.symbolTable(entry: entry))
-symbolTable[element.hashValue] = entry
+  let entry = symbolTable[element.hashValue] ?? TableEntry()
+  entry.oldCounter.increment(withIndex: index)
+  oldElementReferences.append(.symbolTable(entry: entry))
+  symbolTable[element.hashValue] = entry
 }
 ```
 すでに、6つの内、2つのStepが完了しました。
@@ -132,12 +132,12 @@ Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zer
 
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
-guard case let .symbolTable(entry: entry) = reference,
-case .one(let oldIndex) = entry.oldCounter,
-case .one = entry.newCounter else { return }
+  guard case let .symbolTable(entry: entry) = reference,
+    case .one(let oldIndex) = entry.oldCounter,
+    case .one = entry.newCounter else { return }
 
-newElementReferences[newIndex] = .theOther(index: oldIndex)
-oldElementReferences[oldIndex] = .theOther(index: newIndex)
+  newElementReferences[newIndex] = .theOther(index: oldIndex)
+  oldElementReferences[oldIndex] = .theOther(index: newIndex)
 }
 ```
 **本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でindicesInOldを持つことで、片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)**
@@ -147,13 +147,14 @@ oldElementReferences[oldIndex] = .theOther(index: newIndex)
 Step-4に移りましょう。Step-3はユニークな要素に対してのみ、参照元を`.symbolTable`から`.theOther`に変えました。しかし、ユニークでなくても、もしくは被った要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
 ```swift
 newElementReferences.enumerated().forEach { newIndex, _ in
-guard case let .theOther(index: oldIndex) = newElementReferences[newIndex], oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
-case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
-case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex + 1],
-newEntry === oldEntry else { return }
+  guard case let .theOther(index: oldIndex) = newElementReferences[newIndex],
+    oldIndex < oldElementReferences.count - 1, newIndex < newElementReferences.count - 1,
+    case let .symbolTable(entry: newEntry) = newElementReferences[newIndex + 1],
+    case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex + 1],
+    newEntry === oldEntry else { return }
 
-newElementReferences[newIndex + 1] = .theOther(index: oldIndex + 1)
-oldElementReferences[oldIndex + 1] = .theOther(index: newIndex + 1)
+  newElementReferences[newIndex + 1] = .theOther(index: oldIndex + 1)
+  oldElementReferences[oldIndex + 1] = .theOther(index: newIndex + 1)
 }
 ```
 .symbolTable(entry: SymbolTableEntry)は配列O, Nで共通のsymbolTableへの参照で、このassociated valueのSymbolTableEntryは`symbol table`からは要素をkeyとして得られました。
@@ -166,13 +167,14 @@ Step-5です。Step-4ではユニークな要素を起点にして、その次�
 Step-4ではascending orderで問題ありませんが、Step-5ではdescending orderにすることに注意しましょう。
 ```swift
 newElementReferences.enumerated().reversed().forEach { newIndex, _ in
-guard case let .theOther(index: oldIndex) = newElementReferences[newIndex], oldIndex > 0, newIndex > 0,
-case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],
-case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex - 1],
-newEntry === oldEntry else { return }
+  guard case let .theOther(index: oldIndex) = newElementReferences[newIndex],
+    oldIndex > 0, newIndex > 0,
+    case let .symbolTable(entry: newEntry) = newElementReferences[newIndex - 1],
+    case let .symbolTable(entry: oldEntry) = oldElementReferences[oldIndex - 1],
+    newEntry === oldEntry else { return }
 
-newElementReferences[newIndex - 1] = .theOther(index: oldIndex - 1)
-oldElementReferences[oldIndex - 1] = .theOther(index: newIndex - 1)
+  newElementReferences[newIndex - 1] = .theOther(index: oldIndex - 1)
+  oldElementReferences[oldIndex - 1] = .theOther(index: newIndex - 1)
 }
 ```
 さて、6つのStepの内、5つが完了しました。
@@ -188,26 +190,26 @@ Step-6では、これらの計算を行います。
 
 ```swift
 enum Difference<E> {
-case delete(element: E, index: Int)
-case insert(element: E, index: Int)
-case move(element: E, fromIndex: Int, toIndex: Int)
+  case delete(element: E, index: Int)
+  case insert(element: E, index: Int)
+  case move(element: E, fromIndex: Int, toIndex: Int)
 }
 
 var differences: [Difference<T>] = []
 
 oldElementReferences.enumerated().forEach { oldIndex, reference in
-guard case .symbolTable = reference else { return }
-differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
+  guard case .symbolTable = reference else { return }
+  differences.append(.delete(element: oldArray[oldIndex], index: oldIndex))
 }
 
 newElementReferences.enumerated().forEach { newIndex, reference in
-switch reference {
-case .symbolTable:
-differences.append(.insert(element: newArray[newIndex], index: newIndex))
+  switch reference {
+    case .symbolTable:
+      differences.append(.insert(element: newArray[newIndex], index: newIndex))
 
-case let .theOther(index: oldIndex):
-differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
-}
+    case let .theOther(index: oldIndex):
+      differences.append(.move(element: newArray[newIndex], fromIndex: oldIndex, toIndex: newIndex))
+  }
 }
 ```
 共通でなければ`.symbolTable`を参照するしかなく、共通であれば`.theOther`を参照します。よって、この様な計算で、delete, insert, moveのdiffが得られます。
@@ -275,7 +277,7 @@ The total cost for the minimum path, exploring from `source` to `sink`, is the s
 
 So, LCS/SES problem can be solved by finding the shortest path from `source` to `sink`.
 
-### Myers Algorithm
+# Myers Algorithm
 
 As mentioned above, the problem of finding a shortest edit script can be reduced to finding a path from `source (0, 0)` to `sink (N, M)` with the fewest number of horizontal and vertical edges. Let `D-path` be a path starting at `source` that has exactly `D` non-diagonal edges, or must move non-diagonally D-times.
 
@@ -298,14 +300,14 @@ Searching loop outline will be below.
 
 ```swift
 for D in 0...N + M {
-for k in stride(from: -D, through: D, by: 2) {
-//Find the end point of the furthest reaching D-path in k-line.
-if furthestReachingX == N && furthestReachingY == M {
-// The D-path is the shortest path
-// D is the length of Shortest Edit Script
-return
-}
-}
+  for k in stride(from: -D, through: D, by: 2) {
+    //Find the end point of the furthest reaching D-path in k-line.
+    if furthestReachingX == N && furthestReachingY == M {
+      // The D-path is the shortest path
+      // D is the length of Shortest Edit Script
+      return
+    }
+  }
 }
 ```
 
@@ -322,61 +324,61 @@ thanks for these, the number of calculation become less.
 
 ```swift
 public struct MyersDifferenceAlgorithm<E: Equatable> {
-public static func calculateShortestEditDistance(from fromArray: Array<E>, to toArray: Array<E>) -> Int {
-let fromCount = fromArray.count
-let toCount = toArray.count
-let totalCount = toCount + fromCount
-var furthestReaching = Array(repeating: 0, count: 2 * totalCount + 1)
+    public static func calculateShortestEditDistance(from fromArray: Array<E>, to toArray: Array<E>) -> Int {
+        let fromCount = fromArray.count
+        let toCount = toArray.count
+        let totalCount = toCount + fromCount
+        var furthestReaching = Array(repeating: 0, count: 2 * totalCount + 1)
 
-let isReachedAtSink: (Int, Int) -> Bool = { x, y in
-return x == fromCount && y == toCount
-}
+        let isReachedAtSink: (Int, Int) -> Bool = { x, y in
+            return x == fromCount && y == toCount
+        }
 
-let snake: (Int, Int, Int) -> Int = { x, D, k in
-var _x = x
-while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
-_x += 1
-}
-return _x
-}
+        let snake: (Int, Int, Int) -> Int = { x, D, k in
+            var _x = x
+            while _x < fromCount && _x - k < toCount && fromArray[_x] == toArray[_x - k] {
+                _x += 1
+            }
+            return _x
+        }
 
-for D in 0...totalCount {
-for k in stride(from: -D, through: D, by: 2) {
-let index = k + totalCount
+        for D in 0...totalCount {
+            for k in stride(from: -D, through: D, by: 2) {
+                let index = k + totalCount
 
-// (x, D, k) => the x position on the k_line where the number of scripts is D
-// scripts means insertion or deletion
-var x = 0
-if D == 0 { }
-// k == -D, D will be the boundary k_line
-// when k == -D, moving right on the Edit Graph(is delete script) from k - 1_line where D - 1 is unavailable.
-// when k == D, moving bottom on the Edit Graph(is insert script) from k + 1_line where D - 1 is unavailable.
-// furthestReaching x position has higher calculating priority. (x, D - 1, k - 1), (x, D - 1, k + 1)
-else if k == -D || k != D && furthestReaching[index - 1] < furthestReaching[index + 1] {
-// Getting initial x position
-// ,using the furthestReaching X position on the k + 1_line where D - 1
-// ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
-// this moving bottom on the edit graph is compatible with insert script
-x = furthestReaching[index + 1]
-} else {
-// Getting initial x position
-// ,using the futrhest X position on the k - 1_line where D - 1
-// ,meaning get (x, D, k) by (x, D - 1, k - 1) + moving right + snake
-// this moving right on the edit graph is compatible with delete script
-x = furthestReaching[index - 1] + 1
-}
+                // (x, D, k) => the x position on the k_line where the number of scripts is D
+                // scripts means insertion or deletion
+                var x = 0
+                if D == 0 { }
+                    // k == -D, D will be the boundary k_line
+                    // when k == -D, moving right on the Edit Graph(is delete script) from k - 1_line where D - 1 is unavailable.
+                    // when k == D, moving bottom on the Edit Graph(is insert script) from k + 1_line where D - 1 is unavailable.
+                    // furthestReaching x position has higher calculating priority. (x, D - 1, k - 1), (x, D - 1, k + 1)
+                else if k == -D || k != D && furthestReaching[index - 1] < furthestReaching[index + 1] {
+                    // Getting initial x position
+                    // ,using the furthestReaching X position on the k + 1_line where D - 1
+                    // ,meaning get (x, D, k) by (x, D - 1, k + 1) + moving bottom + snake
+                    // this moving bottom on the edit graph is compatible with insert script
+                    x = furthestReaching[index + 1]
+                } else {
+                    // Getting initial x position
+                    // ,using the futrhest X position on the k - 1_line where D - 1
+                    // ,meaning get (x, D, k) by (x, D - 1, k - 1) + moving right + snake
+                    // this moving right on the edit graph is compatible with delete script
+                    x = furthestReaching[index - 1] + 1
+                }
 
-// snake
-// diagonal moving can be performed with 0 cost.
-// `same` script is needed ?
-let _x = snake(x, D, k)
+                // snake
+                // diagonal moving can be performed with 0 cost.
+                // `same` script is needed ?
+                let _x = snake(x, D, k)
 
-if isReachedAtSink(_x, _x - k) { return D }
-furthestReaching[index] = _x
-}
-}
+                if isReachedAtSink(_x, _x - k) { return D }
+                furthestReaching[index] = _x
+            }
+        }
 
-fatalError("Never comes here")
-}
+        fatalError("Never comes here")
+    }
 }
 ```
