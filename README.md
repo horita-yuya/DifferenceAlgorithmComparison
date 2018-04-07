@@ -220,27 +220,44 @@ newElementReferences.enumerated().forEach { newIndex, reference in
 
 #  Myers Difference Algorithm
 
-Myers Difference Algorithm is the algorithm to find a longest common subsequence or shortest edit scripts (LCS/SES dual probrem) of two sequences by a simple O(ND) time, where N is the sum of the lengths of the two sequences. Common subsequence is the sequence of elements that appear in the same order in both sequences. Edit script will be discussed below.
+Myers Difference Algorithm is an algorithm that finds a longest common subsequence(LCS) or shortest edit scripts(SES) of two sequences. MDA can accomplish this in O(ND) time, where N is the sum of the lengths of the two sequences. The common subsequence of two sequences is the sequence of elements that appear in the same order in both sequences.
 
-For example, assuming that sequence `A = ["1", "2", "3"]` and sequence `B = ["2", "3", "4"]`, `["2"], ["2", "3"]` are common sequences. Furthermore, the latter `["2", "3"]` is the longest common subsequence.  But `["1", "2"], ["3", "2"]` are not. Because, `["1", "2"]` contains `"1"` that is not included in `B`, `["3", "2"]` has elements are included in both, but the appearing order is not correct.
+For example, let's assume you have two arrays:
+
+```
+A = [1, 2, 3]
+B = [2, 3, 4]
+```
+
+The common subsequences of these two arrays are `[2]`, and `[2,3]`. The longest common sequence in this case is `[2,3]`.
 
 ## Finding the length of the Longest Common Subsequence with Myers Algorithm on Edit Graph
 
 ### Edit Graph
 
-Myers Algorithm uses Edit Graph for solving LCS/SES problem. Edit Graph is the graph like below.
+MDA uses an **Edit Graph** to solve the LCS/SES problem. Below is a illustration depicting an edit graph:
 
 <img src='Images/EditGraph.png' height="400">
 
-Here, we think about the length of the LCS of sequences `X = [A, B, C, A, B, B, A]`, `Y = [C, B, A, B, A, C]`.
+The x-axis at the top of the graph represents one of the sequences, `X`. The y-axis at the left side of the graph represents the other sequence, `Y`. Hence, the two sequences in question is the following:
 
-In Myers Algorithm, edit graph are prepared by
+```
+X = [A, B, C, A, B, B, A]
+Y = [C, B, A, B, A, C]
+```
+
+MDA generates the edit graph through the following steps:
 
 1. Line the element of sequence `X` on the x axis. And do for `Y` on the y axis.
 2. Make grid and vertex at each point in the grid (x, y), `x in [0, N] and y in [0, M]`. `N` is the length of sequence `X`, `M` is of `Y`
-3. Line for `x - y = k`, this line called k-line. Black dot line is this and pink number is the value of k.
-3. Check the points `(i, j)`, where `X[i] = Y[j]`, called match point, light green one.
-4. Connect vertex `(i - 1, j - 1)` and vertex `(i, j)`, where `(i, j)` is match point, then diagonal edge appears.
+3. Line for `x - y = k`, this line called k-line.
+4. Check the points `(i, j)`, where `X[i] = Y[j]`, called match point.
+5. Connect vertex `(i - 1, j - 1)` and vertex `(i, j)`, where `(i, j)` is match point, then diagonal edge appears.
+
+Each elements on the figure shows that,
+- `Red number and dotted lines`: The red number is the value of k and dotted lines are k-line.
+- `Green dots: The match points`, which is the point `(i, j)` where `X[i] == Y[j]`
+- `Blue line`: The shortest path from source to sink, which is the path we are going to find finally.
 
 > **Note:** Here, the sequences' start index is 1 not 0, so `X[1] = A`, `Y[1] = C`
 
@@ -283,14 +300,14 @@ Searching loop outline will be below.
 
 ```swift
 for D in 0...N + M {
-    for k in stride(from: -D, through: D, by: 2) {
-        //Find the end point of the furthest reaching D-path in k-line.
-        if furthestReachingX == N && furthestReachingY == M {
-            // The D-path is the shortest path
-            // D is the length of Shortest Edit Script
-            return
-        }
+  for k in stride(from: -D, through: D, by: 2) {
+    //Find the end point of the furthest reaching D-path in k-line.
+    if furthestReachingX == N && furthestReachingY == M {
+      // The D-path is the shortest path
+      // D is the length of Shortest Edit Script
+      return
     }
+  }
 }
 ```
 
