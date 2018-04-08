@@ -1,25 +1,24 @@
 # Heckel
 ある配列Oからある配列Nへの差分を取ることを考えましょう。
 
-Heckel Algorithmでは、以下の様に3つのdata structureを考えます。
+Heckel Algorithmでは、以下の様に3つのデータを考えます。
 1. symbol table
 2. old element references
 3. new element references
 
-まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素(のハッシュ値)をkey、symbol table entryをvalueとする辞書型のデータです。
-要素をKeyとしますので、同じ要素であれば、同じValueが返ってきます。そのため、symbol tableは、全登場人物を管理するdata structureとなります。
+まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素のハッシュ値をKey、symbol table entryをValueとする辞書型のデータです。
+要素をKeyとしますので、同じ要素であれば、同じValueが返ってきます。そのため、symbol tableは、全登場人物を管理する辞書型データとなります。
 
-symbol table entryは配列O, N内、**それぞれのkey要素の数(カウンター)**と**key要素の配列O内でのインデックス**を持つ値です。カウンターは配列O, Nそれぞれに対して管理するので2つ必要で、インデックスと合わせると、symbol table entryは3つのプロパティを持つことになります。以下のコードのSymbolTableEntryがそれに該当します。
+symbol table entryは**配列O, N内におけるそれぞれのKey要素の数(Counter)**と**Key要素の配列O内でのインデックス(OLNO)**を持つ値です。Counterは配列O, Nそれぞれに対して管理するので2つ必要で、OLNOと合わせると、symbol table entryは3つのデータを持つことになります。
 
-実は、このカウンターが持つ値としては  *0, 1 or many(.zero, .one, .many)* の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで重複しない要素、もしくはユニークな要素を起点として、差分を取ることを考えるからです。詳細については後ほどの [6-Steps](#6steps) で説明します。
+実は、このカウンターが持つ値としては  *0, 1 or many(.zero, .one, .many)* の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで、共通でユニークな要素(shared unique element)を起点として、差分を取ることを考えるからです。そのため、実装的にはenum Counterにassociated valueを持たせれば大丈夫です。以下のコードのSymbolTableEntryがそれに該当します。
+
+詳細については後ほどの [6-Steps](#6steps) で説明します。
 
 ```swift
 let O: [Int] = [1, 2, 3, 3] // 1 and 2: unique, 3: not unique
 let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
 ```
-
-カウンターに加えてもう一つ、`key要素の配列O内でのインデックス` がありますが、これはそのままの意味ですね。専門的には `OLNO` と呼ばれます。
-さらに、この `OLNO` は、カウンターが.oneの場合のみ必要です。
 
 ```swift
 <E: Hashable>
@@ -47,13 +46,17 @@ class SymbolTableEntry {
   var newCounter: Counter
 }
 ```
-`1. symbol table` をまとめると、**配列O, Nの各要素が全体で考えてどのくらいの数(Counter)含まれているのか？そして、それは配列Oのどこに(OLNO)含まれているのか？を管理するdata structureです。**
+`1. symbol table` をまとめると、
+- 配列O, Nの各要素がそれぞれでどのくらいの数(Counter)含まれているのか
+- それは配列Oのどこに(OLNO)含まれているのか
 
-それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と`1:1対応する`別の配列です。慣習的に配列OA, NAとします。`各要素と1:1対応する` とありますが、配列OA, NAにはそれぞれ、どのような値が入るのでしょうか。
+を管理する辞書型データです。
 
-今、元々の配列O, Nの要素の情報を持っているdata structureは、配列O, Nに加えて先ほどの `symbol table` (keyとして情報を持っている) がありますよね。`old, new element references`では、**自分自身以外のdata structureの要素を参照して自分自身を再構成すること**を考えます。
+それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と`1:1対応する`別の配列です。慣習的に配列OA, NAとします。
 
-配列OA, NAにはその参照が格納されます。全体で3つある参照元の内、自分自身以外を考えるので、参照元は `.symbolTable` と `.theOther` の2つだけです。実装的には以下のようになります。
+今、元々の配列O, Nの要素の情報を持っているデータは、配列O, Nに加えて先ほどの `symbol table` (Keyとして情報を持っている) があります。`old, new element references`では、**自分が持っている要素が自分以外のどこにあるのか**ということを考えます。
+
+配列OA, NAにはその参照が格納されます。全体で3つある配列O, 配列N, 辞書SymbolTable参照元の内、自分自身以外を考えるので、参照元は `.symbolTable` と `.theOther` の2つだけです。実装的には以下のようになります。
 
 ```swift
 enum ElementReference {
@@ -62,13 +65,13 @@ enum ElementReference {
 }
 ```
 
-さて、一度ここまでの登場人物をまとめます。
+一度ここまでの登場人物をまとめます。
 - symbol table :
-  - 2つの配列O, Nの各要素をkeyとする辞書型データ
+  - 2つの配列O, Nの各要素をKeyとする辞書型データ
   - 配列O, Nで共通
   - symbol table entry: key-valueのvalueを管理
-    - その要素がそれぞれの配列に何個含まれてるのか。
-      - その要素が古い方の配列O内で何番目のインデックスなのか。
+    - その要素がそれぞれの配列にどのぐらい含まれてるのか。
+    - その要素が配列O内で何番目のインデックスなのか。
 - Old
   - O: 配列 (oldArray)
   - OA: ElementReferenceを管理する配列 (oldElementReferences)
@@ -76,21 +79,15 @@ enum ElementReference {
   - N: 配列 (newArray)
   - NA: ElementReferenceを管理する配列 (newElementReferences)
 
-()内はswift化した時の変数名とします。
-これ以降、他の登場人物は登場せず、これらを`うまく組み合わせて`行くことで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、その組み合わせ方と手順がHeckel Algorithmの核です。
+()内はswiftで書いた時の変数名とします。
+これ以降、他の登場人物は登場せず、これらをうまく組み合わせることで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、その組み合わせ方と手順がHeckel Algorithmの核です。
 
 ## <a name="6steps"> 6-Steps
 
 ### Step-1
 
 それでは、1-6 Stepの内 Step-1から見て行きましょう。手順は以下の通りです。
-```
-1. 配列Nの各要素をキーとして、symbol table entryを作成。(ただし、そのキーのentryが存在している時は、そのentryを渡す。)
-2. その要素のnewCounterをインクリメントする
-3. NA[i]に.symbolTable(entry:)をセットする。(iはその要素のインデックス)
-4. symbol tableに[key: value] = [N[i], NA[i]]として、entryを登録する。
-```
-Step-1は比較前の準備と言ったところです。
+配列Nの各要素を、SymbolTableに登録していく作業です。
 ```swift
 newArray.forEach { element in
   let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
@@ -103,7 +100,7 @@ newArray.forEach { element in
 
 ### Step-2
 
-Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし、Oldの場合、SymbolTableEntry.indicesInOldの管理も必要でしたね。
+Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし、Oldの場合、OLNOの管理も必要でした。
 ```swift
 oldArray.enumerated().forEach { index, element
   let entry = symbolTable[element.hashValue] ?? TableEntry()
@@ -112,23 +109,25 @@ oldArray.enumerated().forEach { index, element
   symbolTable[element.hashValue] = entry
 }
 ```
+oldCounter.incrementに渡しているindexは、case .oneのassociated valueとして管理されます。
+
 すでに、6つの内、2つのStepが完了しました。
 
 これからStep-3, 4, 5に移りますが、その前にこの3つのStepを大まかに説明します。
 
-Step-1, 2では `newElementReferences, oldElementReferences` に `.symbolTable`だけを登録していました。これは一旦全て `.symbolTable` を参照させることで、配列の比較のための準備をしているのです。
+Step-1, 2では `newElementReferences, oldElementReferences` に `.symbolTable`だけを登録していました。この段階では一旦全て `.symbolTable` 参照になっています。
 
-これから、それらの参照を可能な限り `.theOther` に変えて行きます。つまり、symbol tableからもう片方の配列に参照を変えるということです。しかし、その要素がもう片方の配列に存在していなければ、参照はできません。その場合はそのまま `.symbolTable`を参照したままにします。
+これから、それらの参照を可能な限り `.theOther` に変えて行きます。しかし、その要素がもう片方の配列に存在していなければ、切り替えはできません。その場合はそのまま `.symbolTable`を参照したままにします。
 
-そうなると、最終的には `.symbolTable` は共通で持たない要素を `.theOther` は共通の要素を示しそうな雰囲気がします。ということは、、 `.symbolTable`が `delete, insert`を、`.theOther` が `move` になるのか？？結論は一旦おいておきましょう。
+そうなると、最終的には `.symbolTable` は共通で持たない要素を `.theOther` は共通の要素を示すことになります。結論としては
+- `.symbolTable` -> `delete, insert`
+- `.theOther` -> `move`
+
+に変換されることになります。
 
 ### Step-3
 
-Step-3では、`oldCounter == newCounter == .one` の場合のみ計算を行います。
-
-Heckelアルゴリズムでは、Counter { .zero, .one, .many } でした。.zeroは初期値だとして、.manyは無視するということは、先ほど出てきた `ユニークな要素`をうまく使って計算するということです。`oldCounter == newCounter == .one` の条件は、各配列でそのユニークな要素がただ一つの共通要素になっていることになります。
-
-それでは、ユニークな要素に対して参照先を`.symbolTable` から `.theOther` に変えて行きましょう。
+Step-3では、`oldCounter == newCounter == .one` の場合のみ、つまり、shared unique elementに対して計算を行います。
 
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
@@ -140,11 +139,11 @@ newElementReferences.enumerated().forEach { newIndex, reference in
   oldElementReferences[oldIndex] = .theOther(index: newIndex)
 }
 ```
-**本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でindicesInOldを持つことで、片方のループだけで共通の要素を見つけられる様にしているわけです。(前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。)**
+本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でOLNOを持つことで、片方のループだけで共通の要素を見つけられる様にしています。前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。
 
 ### Step-4
 
-Step-4に移りましょう。Step-3はユニークな要素に対してのみ、参照元を`.symbolTable`から`.theOther`に変えました。しかし、ユニークでなくても、もしくは被った要素でも2つの配列で共通部分を持つ場合はもちろん考えられますよね？ここでは、それを計算します。Step-3で計算した、ユニークな要素のインデックスを起点にして計算するわけです。
+Step-4に移りましょう。Step-3はshared unique elementに対してのみ、参照元を`.symbolTable`から`.theOther`に変えました。しかし、ユニークでなくても、2つの配列で共通部分を持つ場合はもちろん考えられます。ここでは、Step-3の結果を起点として参照を変えます。
 ```swift
 newElementReferences.enumerated().forEach { newIndex, _ in
   guard case let .theOther(index: oldIndex) = newElementReferences[newIndex],
@@ -157,14 +156,11 @@ newElementReferences.enumerated().forEach { newIndex, _ in
   oldElementReferences[oldIndex + 1] = .theOther(index: newIndex + 1)
 }
 ```
-.symbolTable(entry: SymbolTableEntry)は配列O, Nで共通のsymbolTableへの参照で、このassociated valueのSymbolTableEntryは`symbol table`からは要素をkeyとして得られました。
-つまり、`newEntry === oldEntry`、すなわち、entryが同じオブジェクトであればそのreferenceは同じ要素を指していることになります。
-上の式で、無事に参照先を `.theOther` に変えられそうですね。
+Step-3で、.theOther参照になった要素の一つ隣の要素が同じ要素である場合、それを.theOther参照に変えます。
 
 ### Step-5
 
-Step-5です。Step-4ではユニークな要素を起点にして、その次の要素を対象にしていました。しかし、ユニークな要素は疎らに存在していることも十分考えられる訳です。その次の要素は勿論、その一つ前の要素に対しても同じことをする必要があります。Step-5ではそれを計算して行きます。
-Step-4ではascending orderで問題ありませんが、Step-5ではdescending orderにすることに注意しましょう。
+Step-4と同じことを、descending loopで行います。
 ```swift
 newElementReferences.enumerated().reversed().forEach { newIndex, _ in
   guard case let .theOther(index: oldIndex) = newElementReferences[newIndex],
@@ -177,15 +173,16 @@ newElementReferences.enumerated().reversed().forEach { newIndex, _ in
   oldElementReferences[oldIndex - 1] = .theOther(index: newIndex - 1)
 }
 ```
-さて、6つのStepの内、5つが完了しました。
+これで、6つのStepの内、5つが完了しました。
 
 ### Step-6
 
-ここまでで、配列O, Nに対応した配列OA, NAが決定されました。配列OA, NA内の各referenceが `.symbolTable`を指しているのか、`.theOther`を指しているのかによって、*共通の要素・共通で無い要素を判別すること*ができます。 先ほど少しだけ触れましたが、
+ここまでで、配列O, Nに対応した配列OA, NAが決定されました。配列OA, NA内の各referenceが `.symbolTable`を指しているのか、`.theOther`を指しているのかによって、*共通の要素・共通で無い要素を判別すること*ができます。
 - 共通で無い要素で配列Oに含まれているものは、配列Nに編集するためには削除しなければなりません。よって `delete`。
 - 共通で無い要素で配列Nに含まれているものは、配列Oに加えなければなりません。よって `insert`。
 - 共通要素の場合は、順番を変える編集が必要です。よって `move`。
 
+になります。
 Step-6では、これらの計算を行います。
 
 ```swift
@@ -214,7 +211,9 @@ newElementReferences.enumerated().forEach { newIndex, reference in
 ```
 共通でなければ`.symbolTable`を参照するしかなく、共通であれば`.theOther`を参照します。よって、この様な計算で、delete, insert, moveのdiffが得られます。
 
-ここで、moveに関しては注意が必要です。元々の配列Oの各要素に対応して、配列OAがありました。もし配列Oと配列Nが同じであった場合、この配列は全ての参照先が  `.theOther` になります。これをそのまま `move` としてしまうと、あるインデックスから同じインデックスにmoveするという冗長なコマンドになってしまいます。これはあまり嬉しくないですね。その冗長なmoveを無くすことを考えましょう。
+ここで、moveに関しては注意が必要です。元々の配列Oの各要素に対応して、配列OAがありました。もし配列Oと配列Nが同じであった場合、この配列は全ての参照先が  `.theOther` になります。これをそのまま `move` としてしまうと、あるインデックスから同じインデックスにmoveするという冗長なコマンドになってしまいます。そのため、その条件の時は、moveとして検知しないなどの工夫は必要です。
+
+このように、Heckel Algorithmでは、必ずしも最短の編集距離には成り得ません。しかし、線形時間で差分が取れるということは最大の特徴では無いでしょうか。
 
 
 
