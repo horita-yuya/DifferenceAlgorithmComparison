@@ -1,5 +1,5 @@
 # Heckel
-###### <a href='README.ja.md'> Japaneses description (Myers comming soon.)
+[Japaneses description (Myers comming soon.)](/README.ja.md)
 
 Let's think about getting difference between Array O and Array N.
 
