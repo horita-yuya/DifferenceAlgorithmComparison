@@ -1,21 +1,25 @@
 # Heckel
-ある配列Oからある配列Nへの差分を取ることを考えましょう。
+Let's think about getting difference between Array O and Array N.
 
-Heckel Algorithmでは、以下の様に3つのデータを考えます。
+In Heckel Algorithm, these three datas are important.
+
 1. symbol table
 2. old element references
 3. new element references
 
-まずsymbol tableから説明します。symbol tableは配列O, Nの各要素をkeyとするテーブルです。以下の様に実装的には、配列O, Nの各要素のハッシュ値をKey、symbol table entryをValueとする辞書型のデータです。
-要素をKeyとしますので、同じ要素であれば、同じValueが返ってきます。そのため、symbol tableは、全登場人物を管理する辞書型データとなります。
+First, symbol table are described. Symbol table is Dictionary whose key is the elements included in both Array O and N. Like below, it's key is a hash value of each elements and value is a symbol table entry implementally.
 
-symbol table entryは**配列O, N内におけるそれぞれのKey要素の数(Counter)**と**Key要素の配列O内でのインデックス(OLNO)**を持つ値です。Counterは配列O, Nそれぞれに対して管理するので2つ必要で、OLNOと合わせると、symbol table entryは3つのデータを持つことになります。
+Because the key is the hash value of each elements, you can get same value if elements are same.
+Using this feature, symbol table manages all elements appearing in Array O and N.
 
-実は、このカウンターが持つ値としては  *0, 1 or many(.zero, .one, .many)* の3つだけを考えれば十分です。これは、Heckel Algorithmが配列O, Nそれぞれで、共通でユニークな要素(shared unique element)を起点として、差分を取ることを考えるからです。そのため、実装的にはenum Counterにassociated valueを持たせれば大丈夫です。以下のコードのSymbolTableEntryがそれに該当します。
+Symbol table entry is a dictionary value which has two Counters, Counter for Array O and N, and index of the key element in Array O, called OLNO.
 
-詳細については後ほどの [6-Steps](#6steps) で説明します。
+In fact, *.zero .one, .many* cases are enough for Counter. In Heckel Algorithm, the elements which included in both arrays and the number of them in each arrays is just one, called *shared unique element*, will be source for getting difference. So Counter does not need having actual number.
+
+Implementally, OLNO can be an associated value of case .one, like below.
 
 ```swift
+// 1 is the only shared unique element.
 let O: [Int] = [1, 2, 3, 3] // 1 and 2: unique, 3: not unique
 let N: [Int] = [1, 2, 2, 3] // 1 and 3: unique, 2: not unique
 ```
@@ -46,17 +50,18 @@ class SymbolTableEntry {
   var newCounter: Counter
 }
 ```
-`1. symbol table` をまとめると、
-- 配列O, Nの各要素がそれぞれでどのくらいの数(Counter)含まれているのか
-- それは配列Oのどこに(OLNO)含まれているのか
+Summarize for `symbol table`
+- How many elements are included in both arrays? -> `Counter`
+- Where is the element included in array O? -> `associated value of case .one`
 
-を管理する辞書型データです。
+symbol table is a dictionary data manages these information
 
-それでは、`2, 3: old element references, new element references` についてです。まず前提として、これら2つは、配列O, Nの各要素と`1:1対応する`別の配列です。慣習的に配列OA, NAとします。
+Next, describing about `2, 3: old element references, new element references`. First of all, these two arrays are correspoding to array O and N one to one. Let each arrays OA and NA.
 
-今、元々の配列O, Nの要素の情報を持っているデータは、配列O, Nに加えて先ほどの `symbol table` (Keyとして情報を持っている) があります。`old, new element references`では、**自分が持っている要素が自分以外のどこにあるのか**ということを考えます。
+Now, only symbol table has information of array O and N except O and N themselves. It has the information as a key. Newly, arrays OA and NA will manage a reference `where the correspoding element exists`. The candidates of reference are .theOther or .symbolTable. For array O, .theOther reference means array N and vice versa.
 
-配列OA, NAにはその参照が格納されます。全体で3つある配列O, 配列N, 辞書SymbolTable参照元の内、自分自身以外を考えるので、参照元は `.symbolTable` と `.theOther` の2つだけです。実装的には以下のようになります。
+- .symbolTable reference has the entry for symbol table as an associated value.
+- .theOther reference has the index of the other array as an associated value.
 
 ```swift
 enum ElementReference {
@@ -65,29 +70,29 @@ enum ElementReference {
 }
 ```
 
-一度ここまでの登場人物をまとめます。
+Here, Summarize all characters.
 - symbol table :
-  - 2つの配列O, Nの各要素をKeyとする辞書型データ
-  - 配列O, Nで共通
-  - symbol table entry: key-valueのvalueを管理
-    - その要素がそれぞれの配列にどのぐらい含まれてるのか。
-    - その要素が配列O内で何番目のインデックスなのか。
+  - Dictionary whose key is the hash value of elements in array O and N
+  - only one table are shared by O and N.
+  - symbol table entry: the value of symbol table
+    - How many elements are included in both arrays?
+    - Where is the element included in array O?
 - Old
-  - O: 配列 (oldArray)
-  - OA: ElementReferenceを管理する配列 (oldElementReferences)
+  - O: original old array (oldArray)
+  - OA: element reference array is correspoding to array O one to one (oldElementReferences)
 - New
-  - N: 配列 (newArray)
-  - NA: ElementReferenceを管理する配列 (newElementReferences)
+  - N: original new array (newArray)
+  - NA: element reference array is correspoding to array N one to one (newElementReferences)
 
-()内はswiftで書いた時の変数名とします。
-これ以降、他の登場人物は登場せず、これらをうまく組み合わせることで差分を取ることが出来ます。差分を取るまでに6つのStepが必要であり、その組み合わせ方と手順がHeckel Algorithmの核です。
+The name inside parenthesis is a variable name written in Swift.
+No other characters appears from this. The essense of Heckel Algorithm is combining these data and the steps described below.
 
 ## <a name="6steps"> 6-Steps
 
 ### Step-1
 
-それでは、1-6 Stepの内 Step-1から見て行きましょう。手順は以下の通りです。
-配列Nの各要素を、SymbolTableに登録していく作業です。
+Let's proceed to Step-1.
+Here, all elements in array N are registered to symbol table.
 ```swift
 newArray.forEach { element in
   let entry = symbolTable[element.hashValue] ?? SymbolTableEntry()
@@ -96,11 +101,11 @@ newArray.forEach { element in
   symbolTable[element.hashValue] = entry
 }
 ```
-ここで、withIndex: 0としているのは、SymbolTableEntryが管理するインデックスは、配列Oに対して管理すれば十分なので配列Nに対しては0を代入しています。
+The index 0 passing to increment(withindex:) has no meaning. The argument is OLNO, so for array N, it is meaingless.
 
 ### Step-2
 
-Step-2はStep-1と同じ操作をOldに対して行うだけです。ただし、Oldの場合、OLNOの管理も必要でした。
+In step-2, same operation will be done for array O. Here, OLNO must be considered, so counter is incremented with index.
 ```swift
 oldArray.enumerated().forEach { index, element
   let entry = symbolTable[element.hashValue] ?? TableEntry()
@@ -109,25 +114,28 @@ oldArray.enumerated().forEach { index, element
   symbolTable[element.hashValue] = entry
 }
 ```
-oldCounter.incrementに渡しているindexは、case .oneのassociated valueとして管理されます。
+The index passing to incremented(withIndex:) is OLNO and it is retained as an associated value of case .one
 
-すでに、6つの内、2つのStepが完了しました。
+Two steps out of six have already done.
 
-これからStep-3, 4, 5に移りますが、その前にこの3つのStepを大まかに説明します。
+Next, let's proceed to step-3, 4, 5.
 
-Step-1, 2では `newElementReferences, oldElementReferences` に `.symbolTable`だけを登録していました。この段階では一旦全て `.symbolTable` 参照になっています。
+In step-1, 2, only .symbolTable is registered to `newElementReferences and oldElementReferences`. So all references are .symbolTable, of course.
 
-これから、それらの参照を可能な限り `.theOther` に変えて行きます。しかし、その要素がもう片方の配列に存在していなければ、切り替えはできません。その場合はそのまま `.symbolTable`を参照したままにします。
+Here, we will shift the reference to .theOther as much as possible, called *shifting operation*. If the element does not exist in the other array, the shifting operation cannot be done. Then, the reference remains as it was, or .symbolTable.
 
-そうなると、最終的には `.symbolTable` は共通で持たない要素を `.theOther` は共通の要素を示すことになります。結論としては
+Finally,
+- `.symbolTable` -> elements does not exist in the other.
+- `.theOther` -> elements are appeared in both arrays.
+
+these relationship are built. The above relationship is equivalent to the below relationship.
+
 - `.symbolTable` -> `delete, insert`
 - `.theOther` -> `move`
 
-に変換されることになります。
-
 ### Step-3
 
-Step-3では、`oldCounter == newCounter == .one` の場合のみ、つまり、shared unique elementに対して計算を行います。
+In step-3, *shifting operation* is performed for *shared unique element*.
 
 ```swift
 newElementReferences.enumerated().forEach { newIndex, reference in
@@ -139,11 +147,22 @@ newElementReferences.enumerated().forEach { newIndex, reference in
   oldElementReferences[oldIndex] = .theOther(index: newIndex)
 }
 ```
-本来、共通する２つの要素を見つけるためには配列Nをループしてその中で配列Oをループ、またはその反対をする必要がありそうです。しかし、Heckelアルゴリズムでは2つの配列で共通のsymbolTable(keyは各要素)を持ち、そのvalue内でOLNOを持つことで、片方のループだけで共通の要素を見つけられる様にしています。前者の様な方法の場合、計算量がO(NxM)となってしまうので、それを避けている点はとても重要かつ大きなポイントです。
+It seems that finding a shared element needs a loop inside a loop like below.
+
+```swift
+for n in newArray {
+  for o in oldArray {
+    // finding shared element
+  }
+}
+```
+
+But, in Heckel Algorithm, sharing symbol table and managing OLNO, only single loop will be enough for finding shared element. The former method takes O(N x M) time to accomplish calculation. Avoiding that is very important point.
 
 ### Step-4
 
-Step-4に移りましょう。Step-3はshared unique elementに対してのみ、参照元を`.symbolTable`から`.theOther`に変えました。しかし、ユニークでなくても、2つの配列で共通部分を持つ場合はもちろん考えられます。ここでは、Step-3の結果を起点として参照を変えます。
+Next, step-4. In step-3 *shifting operation* was performed only for *shared unique element*. Here, the operation will be done for immediately adjacent to the .theOther pairs.
+
 ```swift
 newElementReferences.enumerated().forEach { newIndex, _ in
   guard case let .theOther(index: oldIndex) = newElementReferences[newIndex],
@@ -156,11 +175,11 @@ newElementReferences.enumerated().forEach { newIndex, _ in
   oldElementReferences[oldIndex + 1] = .theOther(index: newIndex + 1)
 }
 ```
-Step-3で、.theOther参照になった要素の一つ隣の要素が同じ要素である場合、それを.theOther参照に変えます。
+Implementally, the next index of elements which have .theOther reference will be the target of the operation.
 
 ### Step-5
 
-Step-4と同じことを、descending loopで行います。
+Same operation will be done in descending order. This means the previous index will be the target.
 ```swift
 newElementReferences.enumerated().reversed().forEach { newIndex, _ in
   guard case let .theOther(index: oldIndex) = newElementReferences[newIndex],
@@ -173,17 +192,24 @@ newElementReferences.enumerated().reversed().forEach { newIndex, _ in
   oldElementReferences[oldIndex - 1] = .theOther(index: newIndex - 1)
 }
 ```
-これで、6つのStepの内、5つが完了しました。
+
+Five steps out of six have already done.
 
 ### Step-6
 
-ここまでで、配列O, Nに対応した配列OA, NAが決定されました。配列OA, NA内の各referenceが `.symbolTable`を指しているのか、`.theOther`を指しているのかによって、*共通の要素・共通で無い要素を判別すること*ができます。
-- 共通で無い要素で配列Oに含まれているものは、配列Nに編集するためには削除しなければなりません。よって `delete`。
-- 共通で無い要素で配列Nに含まれているものは、配列Oに加えなければなりません。よって `insert`。
-- 共通要素の場合は、順番を変える編集が必要です。よって `move`。
+In step-1 to step-5, arrays OA and NA were determined. Difference scripts, .delete, .insert, .move, are converted from the references contained in OA and NA.
 
-になります。
-Step-6では、これらの計算を行います。
+- reference to .symbolTable = not shared element
+- reference to .theOther = shared element
+
+Apparently, the above relationship is built.
+
+- Not shared element included in array O must be `deleted`.
+- Not shared element included in array N must be `inserted`.
+- Shared element must be `moved` to adjust index.
+
+References can be converted like above.
+In step-6, the convertion will be done.
 
 ```swift
 enum Difference<E> {
@@ -209,13 +235,12 @@ newElementReferences.enumerated().forEach { newIndex, reference in
   }
 }
 ```
-共通でなければ`.symbolTable`を参照するしかなく、共通であれば`.theOther`を参照します。よって、この様な計算で、delete, insert, moveのdiffが得られます。
 
-ここで、moveに関しては注意が必要です。元々の配列Oの各要素に対応して、配列OAがありました。もし配列Oと配列Nが同じであった場合、この配列は全ての参照先が  `.theOther` になります。これをそのまま `move` としてしまうと、あるインデックスから同じインデックスにmoveするという冗長なコマンドになってしまいます。そのため、その条件の時は、moveとして検知しないなどの工夫は必要です。
+Here, we need be careful for `move` script. Assuming that array O and N are completely same. In this case, all references will be .theOther, so all scripts will be move. But this move's fromIndex and toIndex are same.
 
-このように、Heckel Algorithmでは、必ずしも最短の編集距離には成り得ません。しかし、線形時間で差分が取れるということは最大の特徴では無いでしょうか。
+They are useless move scripts. Some index restrictions will be needed for removing such verbose move commands.
 
-
+Like this, the difference got by Heckel Algorithm cannot be shortest. The major characteristics of it is linear-time calculation.
 
 #  Myers Difference Algorithm
 
