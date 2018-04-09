@@ -1,4 +1,6 @@
 # Heckel
+###### <a href='README.ja.md'> Japaneses description (Myers comming soon.)
+
 Let's think about getting difference between Array O and Array N.
 
 In Heckel Algorithm, these three datas are important.
