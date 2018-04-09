@@ -1,5 +1,5 @@
 # Heckel
-[Japaneses description (Myers comming soon.)](/README.ja.md)
+[Japaneses description (Myers comming soon.)](/README.jp.md)
 
 Let's think about getting difference between Array O and Array N.
 
