@@ -246,6 +246,8 @@ Like this, the difference got by Heckel Algorithm cannot be shortest. The major 
 
 #  Myers Difference Algorithm
 
+#### This algorithm was merged into [swift-algorithm-club](https://github.com/raywenderlich/swift-algorithm-club/pull/693)
+
 Myers Difference Algorithm is an algorithm that finds a longest common subsequence(LCS) or shortest edit scripts(SES) of two sequences. MDA can accomplish this in O(ND) time, where N is the sum of the lengths of the two sequences. The common subsequence of two sequences is the sequence of elements that appear in the same order in both sequences.
 
 For example, let's assume you have two arrays:
